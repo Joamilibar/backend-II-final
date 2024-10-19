@@ -1,36 +1,18 @@
 import { Router } from 'express';
-import { authToken, isAuthenticated, isNotAuthenticated } from '../middleware/auth.js';
 import jwt from 'jsonwebtoken';
-
+import { loginView, registerView, profileView, updateView, currentView } from '../controllers/views.controller.js';
+import Auth from '../middleware/auth.js';
 const router = Router();
 
-router.get('/login', isNotAuthenticated, (req, res) => {
-    res.render('login');
-});
+router.get('/login', Auth.isNotAuthenticated, loginView);
 
-router.get('/register', isNotAuthenticated, (req, res) => {
-    const roles = [
-        { value: 'user', label: 'Usuario' },
-        { value: 'admin', label: 'Administrador' }
-    ];
-    return res.render('register', { roles });
-});
+router.get('/register', Auth.isNotAuthenticated, registerView);
 
-router.get('/profile', isAuthenticated, (req, res) => {
+router.get('/profile', Auth.isAuthenticated, profileView);
 
-    res.render('profile', { user: req.session.user });
-});
+router.get('/update', Auth.isNotAuthenticated, updateView);
 
-router.get('/update', isNotAuthenticated, (req, res) => {
-    res.render('update');
-});
-
-router.get('/current', isAuthenticated, (req, res) => {
-    const user = req.session.user;
-    console.log('Usuario Registrado: ', user);
-    return res.render('current', { user });
-
-}
-);
+router.get('/current', Auth.isAuthenticated, currentView);
 
 export default router;
+

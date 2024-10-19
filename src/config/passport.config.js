@@ -1,10 +1,13 @@
 import passport from "passport";
 import local from "passport-local";
-import userService from "../models/user.js";
-import { createHash, isValidPassword } from "../utils.js";
+import userService from "../dao/models/user.model.js";
+//import { createHash, isValidPassword } from "../utils.js";
 import jwt from 'passport-jwt';
 import cookieParser from "cookie-parser";
-import { secretOrKey } from "../utils.js";
+import Utils from "../common/utils.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const JWTStrategy = jwt.Strategy;
 const ExtractJWT = jwt.ExtractJwt;
@@ -32,8 +35,7 @@ const initializePassport = () => {
 
                 return done(null, false, { message: 'User already exists' });
             }
-
-            const newUser = new userService({ first_name, last_name, email, age, password: createHash(password), cartId: false, role });
+            const newUser = new userService({ first_name, last_name, email, age, password: Utils.createHash(password), cartId: false, role });
             let result = await userService.create(newUser);
 
             return done(null, result);
@@ -57,7 +59,7 @@ const initializePassport = () => {
 
                 return done(null, false, { message: 'User not found' });
             }
-            if (!isValidPassword(user, password)) {
+            if (!Utils.isValidPassword(user, password)) {
                 console.log('Invalid password');
 
                 return done(null, false, { message: 'Invalid password' });
@@ -73,7 +75,7 @@ const initializePassport = () => {
 
     passport.use('jwt', new JWTStrategy({
         jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
-        secretOrKey: secretOrKey
+        secretOrKey: process.env.SECRET_KEY
     }, async (jwt_payload, done) => {
         try {
             if (!jwt_payload) {

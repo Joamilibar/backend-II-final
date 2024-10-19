@@ -10,6 +10,8 @@ import passport from 'passport';
 import initializePassport from './config/passport.config.js';
 import cookieParser from 'cookie-parser';
 
+
+
 const app = express();
 const PORT = 8080;
 
@@ -29,7 +31,7 @@ app.use(session({
     secret: 'secretkey',
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: 'mongodb+srv://joamilibarra:oK4kAi1laK4MdSwY@coder70065.llnur.mongodb.net/session?retryWrites=true&w=majority&appName=Coder70065' }),
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),
 }))
 
 app.use(express.static('public'));
