@@ -12,7 +12,6 @@ import dotenv from "dotenv";
 const sessionDAO = new SessionDAO();
 dotenv.config();
 
-
 export default class SessionsController {
     static register = async (req, res) => {
         const {
@@ -24,18 +23,10 @@ export default class SessionsController {
             role
         } = req.body;
 
-
-        /* const registerDTO = new RegisterDTO();
-        const response = await SessionsService.register(registerDTO);
-        console.log(response)
-        const { token } = response; // destructuring */
         const token = Utils.createToken(email);
         console.log(({ status: "success", message: "Usuario registrado correctamente" }))
         res.cookie('token', token, { httpOnly: true, maxAge: 60 * 30 * 1000 });
         res.redirect('/login');
-
-
-
     }
 
     static failRegister = async (req, res) => {
@@ -66,8 +57,6 @@ export default class SessionsController {
     
     } */
 
-        /*  console.log("Login Error", error)
-         res.status(400).send({ status: "error", error: "Error User Login" }) */
 
     };
 
@@ -87,43 +76,42 @@ export default class SessionsController {
 
     static update = async (req, res) => {
         const { email, password } = req.body;
+
+        if (!email || !password) return res.status(400).send({ status: "error", error: "Valores incompletos" })
+
         let result = await sessionDAO.updateUser(email, password);
         console.log('Usuario actualizado: ', result)
+
+        if (!result) return res.status(400).send({ status: "error", error: "Usuario no encontrado" });
+
         res.redirect('/login');
     };
 
 
     static current = async (req, res) => {
-        const token = req.cookies.token;
-        const user = req.user;
-        console.log('Usuario autenticado: ', user)
+        let token = req.cookies.token;
 
-        const result = await sessionDAO.currentUser(user, token);
-        res.send({ status: "success", message: "There is an authenticated user" })
-        /*
-         try {
-             let decoded = jwt.verify(token, process.env.SECRET_KEY);
-             console.log('Decoded User: ', decoded)
-             return res.send(decoded.user);
-         } catch (error) {
-             console.error(error)
-         } */
+        if (!token) {
+            return res.send({ status: "error", error: "No authenticated user" })
+        }
+
+        const decoded = Auth.verifyToken(token);
+        console.log('Decoded User: ', decoded)
+        return res.send(decoded.user);
+
+
+
+
+        /* 
+        const token = req.cookies.token; // req.headers.authorization.split(' ')[1];
+        const decoded = Auth.verifyToken(token);
+
+        const user = await sessionDAO.currentUser(decoded.email);
+        console.log('Usuario autenticado: ', user)
+        // const result = await sessionDAO.currentUser(user, token);
+        res.send({ status: "success", message: "There is an authenticated user", user });
+ */
     }
 
 }
-/* export const register = async (req, res) => {
-    const { email, password } = req.body;
-    
-    try {
-        let token = createToken(req.user);
-        
-        console.log(({ status: "success", message: "Usuario registrado correctamente" }))
-        
-        res.cookie('token', token, { httpOnly: true, maxAge: 60 * 30 * 1000 });
-        res.redirect('/login');
-        } catch (error) {
-            console.log("Register Error", error)
-            res.status(400).send({ status: "error", error: "Error User Register" })
-            }
-            }; */
 

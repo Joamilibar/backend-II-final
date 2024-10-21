@@ -6,7 +6,11 @@ import jwt from 'passport-jwt';
 import cookieParser from "cookie-parser";
 import Utils from "../common/utils.js";
 import dotenv from "dotenv";
+import SessionDAO from "../dao/session.dao.js";
+import UserDAO from "../dao/user.dao.js";
 
+const userDAO = new UserDAO();
+const sessionDAO = new SessionDAO();
 dotenv.config();
 
 const JWTStrategy = jwt.Strategy;
@@ -29,14 +33,14 @@ const initializePassport = () => {
     }, async (req, username, password, done) => {
         const { first_name, last_name, email, age, role } = req.body;
         try {
-            let user = await userService.findOne({ email: username });
+            let user = await sessionDAO.getUserById({ email: username });
             if (user) {
                 console.log('User already exists');
 
                 return done(null, false, { message: 'User already exists' });
             }
             const newUser = new userService({ first_name, last_name, email, age, password: Utils.createHash(password), cartId: false, role });
-            let result = await userService.create(newUser);
+            let result = await sessionDAO.createUser(newUser);
 
             return done(null, result);
 
@@ -53,7 +57,7 @@ const initializePassport = () => {
 
     }, async (username, password, done) => {
         try {
-            const user = await userService.findOne({ email: username });
+            const user = await sessionDAO.getUserById({ email: username });
             if (!user) {
                 console.log('User not found');
 
@@ -98,7 +102,8 @@ const initializePassport = () => {
     });
 
     passport.deserializeUser(async (id, done) => {
-        let user = await userService.findById(id);
+        let user = await userDAO.getUserById(id);
+        //let user = await userService.findById(id);
         done(null, user);
     });
 };

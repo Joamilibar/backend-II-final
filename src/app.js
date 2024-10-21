@@ -4,8 +4,9 @@ import bodyParser from 'body-parser';
 import { engine } from 'express-handlebars';
 import mongoose from './config/database.js';
 import MongoStore from 'connect-mongo';
-import sessionsRouter from './routes/api/sessions.js';
-import viewsRouter from './routes/views.js';
+import sessionsRouter from './routes/api/sessions.router.js';
+import viewsRouter from './routes/views.router.js';
+import productsRouter from './routes/api/products.router.js';
 import passport from 'passport';
 import initializePassport from './config/passport.config.js';
 import cookieParser from 'cookie-parser';
@@ -24,7 +25,7 @@ app.engine('hbs', engine({
 app.set('view engine', 'hbs');
 app.set('views', './src/views');
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(session({
@@ -42,6 +43,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api/sessions', sessionsRouter);
+app.use('/api/', productsRouter);
 app.use('/', viewsRouter);
 
 app.listen(PORT, () => {

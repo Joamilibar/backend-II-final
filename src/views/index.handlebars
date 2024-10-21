@@ -1,0 +1,29 @@
+<div>
+  <h1>{{title}}</h1>
+  <ul>
+    {{#each products}}
+      <li>
+        <h2>Producto: {{this.title}}</h2>
+        <p>Descripción: {{this.description}}</p>
+        <p>Precio: {{this.price}}</p>
+        <p>Categoría: {{this.category}}</p>
+        <button class="add-to-cart" data-id="{{this._id}}">Agregar al carrito</button>
+        {{!-- <button onclick="addToCart('{{this._id}}')">Agregar al carrito</button> --}}
+        <strong>{{product.title}}</strong>
+      </li>
+    {{/each}}
+  </ul>
+  <div>
+    {{#if (gt currentPage 1)}}
+      <a href="/products?page={{subtract currentPage 1}}">Anterior</a>
+    {{/if}}
+    {{#if (lt currentPage totalPages)}}
+      <a href="/products?page={{add currentPage 1}}">Siguiente</a>
+    {{/if}}
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+{{! <script src="/js/index.js"></script> }}
+<script src="/js/view.index.js"></script>

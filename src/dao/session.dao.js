@@ -20,7 +20,7 @@ export default class SessionDAO {
 
     getUserById = async (id) => {
         try {
-            let user = await usersModel.findOne({ _id: id })
+            let user = await usersModel.findOne(id)
             return user
         } catch (error) {
             console.log(error)
@@ -38,12 +38,10 @@ export default class SessionDAO {
 
     updateUser = async (email, password) => { //(id, user)
         try {
-            if (!email || !password) return res.status(400).send({ status: "error", error: "Valores incompletos" })
+            //if (!email || !password) return res.status(400).send({ status: "error", error: "Valores incompletos" })
 
-            const user = await usersModel.findOne({ email }, { email: 1, first_name: 1, last_name: 1, password: 1, cartId: 1, role: 1 });
+            const user = await this.getUserById({ email }, { email: 1, first_name: 1, last_name: 1, password: 1, cartId: 1, role: 1 });
             console.log(user)
-
-            if (!user) return res.status(400).send({ status: "error", error: "Usuario no encontrado" });
 
             let result = await usersModel.updateOne({ email }, { password: Utils.createHash(password) })
             return result
@@ -52,24 +50,29 @@ export default class SessionDAO {
         }
     }
 
-    currentUser = async (user, token) => {
+    /* currentUser = async (email) => {
         try {
-            const email = user.email;
-            /* if (!user) {
-                return res.send({ status: "error", error: "No authenticated user" });
-            } */
-            let decoded = jwt.verify(token, process.env.SECRET_KEY);
-            console.log('Decoded User: ', decoded)
-            return decoded // res.send(decoded.user);
+            //const email = user.email;
+            if (!email) throw new Error('No email provided');
+            const user = await usersModel.findOne({ email }, { email: 1, first_name: 1, last_name: 1, password: 1, cartId: 1, role: 1 });
 
+            //let decoded = jwt.verify(token, process.env.SECRET_KEY);
+
+            //if (!user) throw new Error('User not found');
+
+            //console.log('Decoded User: ', decoded)
+            //return decoded // res.send(decoded.user);
+            return user;
 
             /* if (!email) return res.status(400).send({ status: "error", error: "Valores incompletos" })
 
             const user = await usersModel.findOne({ email }, { email: 1, first_name: 1, last_name: 1, password: 1, cartId: 1, role: 1 });
             return user */
-        } catch (error) {
-            console.error(error)
-            //console.log(error)
-        }
-    };
+    //} catch (error) {
+    //console.error(error)
+    //throw error;
+    //console.log(error)
+    // }
+    //}; */
+
 }

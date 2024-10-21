@@ -8,6 +8,7 @@ import Utils from '../../common/utils.js';
 
 
 
+
 const router = Router();
 
 router.post('/register', passport.authenticate('register', { failureRedirect: '/failregister' }), SessionsController.register);
@@ -23,4 +24,7 @@ router.post('/logout', Auth.isAuthenticated, SessionsController.logout);
 router.post('/update', SessionsController.update);
 
 router.get('/current', Auth.isAuthenticated, Utils.passportCall('jwt'), SessionsController.current);
+
+
 export default router;
+

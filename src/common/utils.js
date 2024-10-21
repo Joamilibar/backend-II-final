@@ -31,8 +31,6 @@ export default class Utils {
         }
     }
 
-
-
     static authorization = (role) => {
         return async (req, res, next) => {
             if (!req.user) return res.status(401).send({ error: "Unauthorized" })
@@ -54,4 +52,10 @@ export default class Utils {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
+
+    __filename = fileURLToPath(import.meta.url);
+
+    __dirname = dirname(this.__filename);
+
+
 }
