@@ -24,8 +24,8 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     cartId: {
-        type: Boolean,
-        default: false
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CartsModel"
     },
     role: {
         type: String,

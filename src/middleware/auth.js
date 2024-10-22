@@ -55,9 +55,18 @@ export default class Auth {
         }
     };
 
-    static accessRole = (user) => {
+    static accessRole = (roles) => {
         return (req, res, next) => {
-            const token = req.cookies.token;
+            const userRole = req.user?.role;
+
+            if (roles.includes(userRole)) {
+                return next();
+            }
+            return res.status(403).send({ status: "error", message: "Acceso denegado" });
+
+
+
+            /* const token = req.cookies.token;
 
             if (!token) {
                 return res.status(401).send({ error: 'No authenticated' });
@@ -68,7 +77,7 @@ export default class Auth {
                 return res.status(403).send({ error: 'Unauthorized access' });
             }
 
-            next(); // Si el rol es válido, continúa
+            next(); */ // Si el rol es válido, continúa
         };
 
     }

@@ -15,11 +15,12 @@ dotenv.config();
 export default class SessionsController {
     static register = async (req, res) => {
         const {
-            email,
-            password,
             first_name,
             last_name,
+            email,
             age,
+            password,
+            cartId,
             role
         } = req.body;
 
@@ -98,19 +99,6 @@ export default class SessionsController {
         const decoded = Auth.verifyToken(token);
         console.log('Decoded User: ', decoded)
         return res.send(decoded.user);
-
-
-
-
-        /* 
-        const token = req.cookies.token; // req.headers.authorization.split(' ')[1];
-        const decoded = Auth.verifyToken(token);
-
-        const user = await sessionDAO.currentUser(decoded.email);
-        console.log('Usuario autenticado: ', user)
-        // const result = await sessionDAO.currentUser(user, token);
-        res.send({ status: "success", message: "There is an authenticated user", user });
- */
     }
 
 }

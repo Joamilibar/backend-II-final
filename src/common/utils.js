@@ -2,6 +2,9 @@ import bcrypt from 'bcrypt'
 import passport from 'passport'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
+import { fileURLToPath } from 'url'
+import path from 'path'
+import { dirname } from 'path'
 
 
 dotenv.config()
@@ -53,9 +56,9 @@ export default class Utils {
         return emailRegex.test(email);
     }
 
-    __filename = fileURLToPath(import.meta.url);
+    static __filename = fileURLToPath(import.meta.url);
 
-    __dirname = dirname(this.__filename);
+    static __dirname = path.dirname(Utils.__filename);
 
 
 }

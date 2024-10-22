@@ -4,7 +4,7 @@ import passport from "passport";
 import jwt from "jsonwebtoken";
 import Utils from "../common/utils.js";
 import paginate from 'mongoose-paginate-v2';
-import productModel from "../dao/models/product.model.js";
+import ProductModel from "../dao/models/product.model.js";
 import __dirname from "../common/utils.js";
 // { authorization, createHash, auth isValidPassword,  passportCall, createToken, secretOrKey } 
 import SessionsService from "../services/sessions.service.js";
@@ -17,6 +17,7 @@ dotenv.config();
 
 export default class ProductController {
 
+    products
     static getProducts = async (req, res) => {
         try {
             let { limit = 10, page = 1, sort, query, category, availability } = req.query;
@@ -54,50 +55,100 @@ export default class ProductController {
 
             //const { limit = 10, page = 1, sot, query } = req.query;
 
-            let result = await productModel.paginate(productFilter, options,); // Buscamos productos en la base de datos
+            let result = await productDAO.getProducts(productFilter, options,); // Buscamos productos en la base de datos
             console.log(result);
             res.send({ result: "Success", payload: result })
         } catch (error) {
             res.send({ result: "Error", payload: error })
         }
 
+    }
 
-        /* const products = await productDAO.getProducts();
-        if (products) {
-            res.status(200).send({ status: "success", products });
-        } else {
-            res.status(400).send({ status: "error", error: "No se pudieron obtener los productos" });
-        } */
+    static getProductById = async (req, res) => {
+        try {
+            const { id } = req.params;
+            const product = await productDAO.getProductById(id);
+            if (!product) {
+                return res.status(404).send({ result: "Error", error: "Producto no encontrado" });
+            }
+            res.send({ result: "Success", payload: product });
+        } catch (error) {
+            res.status(500).send({ result: "Error", payload: error.message });
+        }
     }
 
     static createProduct = async (req, res) => {
-        const product = req.body;
-        const newProduct = await productDAO.createProduct(product);
-        if (newProduct) {
-            res.status(200).send({ status: "success", newProduct });
-        } else {
-            res.status(400).send({ status: "error", error: "No se pudo crear el producto" });
+        const { title, description, code, price, status = true, stock, category, thumbnails = [] } = req.body;
+        // const products = await prodFileManager.readFile();
+
+        // Validación de campos obligatorios
+
+        if (!title || !description || !code || !price || !status || !stock || !category) {
+            res.send({ status: "error", error: "Faltan Parámetros Obligatorios" });
+
+
         }
+        try {
+            const result = await ProductModel.create({
+                title,
+                description,
+                code,
+                price,
+                status,
+                stock,
+                category,
+                thumbnails
+            });
+            res.send({ result: "Successs", payload: result });
+        } catch (error) {
+            res.status(500).send({ result: "Error", payload: error.message });
+        }
+
     }
 
     static updateProduct = async (req, res) => {
-        const { id } = req.params;
-        const product = req.body;
-        const updatedProduct = await productDAO.updateProduct(id, product);
-        if (updatedProduct) {
-            res.status(200).send({ status: "success", updatedProduct });
-        } else {
-            res.status(400).send({ status: "error", error: "No se pudo actualizar el producto" });
+        try {
+            const { id } = req.params;
+            const updatedProduct = await productDAO.updateProduct(id, req.body);
+            if (!updatedProduct) {
+                return res.status(404).send({ result: "Error", error: "Producto no encontrado" });
+            }
+            //socketServer.emit('productUpdate', updatedProduct);
+            res.send({ result: "Success", payload: updatedProduct });
+        } catch (error) {
+            res.status(500).send({ result: "Error", payload: error.message });
         }
+
     }
 
     static deleteProduct = async (req, res) => {
-        const { id } = req.params;
-        const deletedProduct = await productDAO.deleteProduct(id);
-        if (deletedProduct) {
-            res.status(200).send({ status: "success", deletedProduct });
-        } else {
-            res.status(400).send({ status: "error", error: "No se pudo eliminar el producto" });
+        try {
+            const { id } = req.params;
+            const deletedProduct = await productDAO.deleteProduct(id);
+            // const productId = parseInt(req.params.pid);
+
+            //const updatedProducts = products.filter((product) => product.id !== productId);
+            if (!deletedProduct) {
+                return res.status(404).send({ result: "Error", error: "Producto no encontrado" });
+            }
+            res.send({ result: "Success", message: `Producto con el id ${pid} eliminado correctamente` });
+        } catch (error) {
+            res.status(500).send({ result: "Error", payload: error.message });
         }
+
+
+        /* if (!updatedProduct) {
+            res.status(404).json({ message: "Producto no encontrado" });
+        } else {
+            products.splice(updatedProducts - 1, 1);
+            await productDAO.deleteProduct(updatedProducts);
+
+            res.json({ message: `Producto con el id ${productId} eliminado correctamente` });
+
+        } */
+        // } catch(error) {
+        res.status(404).json({ message: "Producto no encontrado" });
+        // }
+
     }
 }

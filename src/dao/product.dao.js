@@ -4,15 +4,16 @@ import Utils from '../common/utils.js';
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import productModel from "./models/product.model.js";
+import ProductModel from "./models/product.model.js";
 
 
 
 
 export default class ProductDAO {
-    getProducts = async () => {
+
+    getProducts = async (filter, options) => {
         try {
-            let products = await productModel.find()
+            let products = await ProductModel.paginate(filter, options)
             return products
         } catch (error) {
             console.log(error)
@@ -22,35 +23,41 @@ export default class ProductDAO {
 
     getProductById = async (id) => {
         try {
-            let product = await productModel.findOne({ _id: id })
-            return product
+            let products = await ProductModel.findById({ _id: id })
+            return products
         } catch (error) {
-            console.log(error)
+            console.error("Error en getProductById:", error);
             return null
         }
     }
 
-    createProduct = async (product) => {
+    createProduct = async (productData) => {
         try {
-            return productModel.create(product)
+            const newProduct = await ProductModel.create(productData);
+            return newProduct;
         } catch (error) {
-            console.log(error)
+            console.error("Error en createProduct:", error);
+            return null;
         }
     }
 
-    updateProduct = async (id, product) => {
+    updateProduct = async (id, productData) => {
         try {
-            return productModel.updateOne({ _id: id }, product)
+            const updatedProduct = await ProductModel.findByIdAndUpdate(id, productData, { new: true });
+            return updatedProduct;
         } catch (error) {
-            console.log(error)
+            console.error("Error en updateProduct:", error);
+            return null;
         }
     }
 
     deleteProduct = async (id) => {
         try {
-            return productModel.deleteOne({ _id: id })
+            const deletedProduct = await ProductModel.findByIdAndDelete(id);
+            return deletedProduct;
         } catch (error) {
-            console.log(error)
+            console.error("Error en deleteProduct:", error);
+            return null;
         }
     }
-}
+};

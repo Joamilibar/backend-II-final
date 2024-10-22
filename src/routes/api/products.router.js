@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import session from 'express-session';
-import productModel from '../../dao/models/product.model.js';
+import ProductModel from '../../dao/models/product.model.js';
 import User from '../../dao/models/user.model.js';
 import paginate from 'mongoose-paginate-v2';
 import passport from 'passport';
@@ -19,88 +19,15 @@ const productDAO = new ProductDAO();
 // Rutas para productos
 router.get('/products', ProductController.getProducts);
 
-
-router.post('/products', async (req, res) => {
-
-
-    const { title, description, code, price, status = true, stock, category, thumbnails = [] } = req.body;
-    // const products = await prodFileManager.readFile();
-
-    // Validación de campos obligatorios
-
-    if (!title || !description || !code || !price || !status || !stock || !category) {
-        res.send({ status: "error", error: "Faltan Parámetros Obligatorios" });
-
-        // res.status(400).json({ message: "Faltan campos obligatorios (thumbnails único campo no obligatorio)" });
-    } // else {
-
-    const result = await productModel.create({
-        title,
-        description,
-        code,
-        price,
-        status,
-        stock,
-        category,
-        thumbnails
-    });
-    res.send({ result: "Successs", payload: result });
-
-});
+router.get('/products/:id', ProductController.getProductById);
 
 
-router.put('/products/:id', async (req, res) => {
-    const products = await productDAO.getProducts();
-    const productId = parseInt(req.params.pid);
-    const product = productDAO.getProductById(id);
-    if (product) {
-
-        const { title, description, code, price, status, stock, category, thumbnails } = req.body;
-        product.title = title;
-        product.description = description;
-        product.code = code;
-        product.price = price;
-        product.status = status;
-        product.stock = stock;
-        product.category = category;
-        product.thumbnails = thumbnails;
-        await productDAO.updateProduct(products);
-
-        // Emitir evento de actualización de producto
-        //socketServer.emit('productUpdate', products);
-
-        res.status(201).json(product);
-
-    } else {
-        res.status(404).json({ message: "Producto no actualizado" });
-    }
-});
-
-router.delete('/products/:id', async (req, res) => {
-
-    try {
-        let products = await productDAO.getProductById();
-        const productId = parseInt(req.params.pid);
-
-        const updatedProducts = products.filter((product) => product.id !== productId);
-
-        if (!updatedProducts) {
-            res.status(404).json({ message: "Producto no encontrado" });
-        } else {
-            products.splice(updatedProducts - 1, 1);
-            await productDAO.deleteProduct(updatedProducts);
-
-            // Emitir elemento de eliminación de producto
-            // socketServer.emit('productUpdate', products);
+router.post('/products', Auth.accessRole, ProductController.createProduct);
 
 
-            res.json({ message: `Producto con el id ${productId} eliminado correctamente` });
+router.put('/products/:id', Auth.accessRole, ProductController.updateProduct);
 
-        }
-    } catch (error) {
-        res.status(404).json({ message: "Producto no encontrado" });
-    }
-});
+router.delete('/products/:id', Auth.accessRole, ProductController.deleteProduct);
 
 // Ruta para que los usuarios puedan agregar productos a su carrito
 //router.post('/carts/:cid/products/:pid', Auth.accessRole(['user']), cartController.addProductToCart);

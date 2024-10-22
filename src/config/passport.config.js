@@ -7,9 +7,13 @@ import cookieParser from "cookie-parser";
 import Utils from "../common/utils.js";
 import dotenv from "dotenv";
 import SessionDAO from "../dao/session.dao.js";
+import CartDAO from "../dao/cart.dao.js";
 import UserDAO from "../dao/user.dao.js";
+import CartController from "../controllers/carts.controller.js";
 
 const userDAO = new UserDAO();
+const cartDAO = new CartDAO();
+
 const sessionDAO = new SessionDAO();
 dotenv.config();
 
@@ -31,7 +35,7 @@ const initializePassport = () => {
         usernameField: 'email',
         passReqToCallback: true
     }, async (req, username, password, done) => {
-        const { first_name, last_name, email, age, role } = req.body;
+        const { first_name, last_name, email, age, cartId, role } = req.body;
         try {
             let user = await sessionDAO.getUserById({ email: username });
             if (user) {
@@ -39,7 +43,23 @@ const initializePassport = () => {
 
                 return done(null, false, { message: 'User already exists' });
             }
-            const newUser = new userService({ first_name, last_name, email, age, password: Utils.createHash(password), cartId: false, role });
+            const userCart = await cartDAO.createCart({
+                first_name,
+                last_name,
+                email,
+                products: []
+
+            });
+            console.log('EL USERCART', userCart);
+            const newUser = new userService({
+                first_name,
+                last_name,
+                email,
+                age,
+                password: Utils.createHash(password),
+                cartId: userCart._id,
+                role
+            });
             let result = await sessionDAO.createUser(newUser);
 
             return done(null, result);
