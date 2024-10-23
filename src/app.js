@@ -13,6 +13,9 @@ import passport from 'passport';
 import initializePassport from './config/passport.config.js';
 import cookieParser from 'cookie-parser';
 import Utils from './common/utils.js';
+import http from 'http';
+import __dirname from './common/utils.js';
+
 
 
 
@@ -44,6 +47,7 @@ app.set('views', './src/views');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(express.static('src/public'));
 
 app.use(session({
     secret: 'secretkey',

@@ -26,7 +26,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const userResponse = await fetch('/api/sessions/current');
         const userData = await userResponse.json();
-        cartId = userData.cartId;  // El cartId del usuario
+        console.log('userData:', userData);
+        cartId = userData.email.cartId;  // El cartId del usuario
+        console.log('cartId:', cartId);
 
         if (!cartId) {
             console.log('El usuario no tiene un carrito asignado.');
@@ -35,6 +37,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error al obtener el cartId del usuario:', error);
         return;
     }
+
+    /* document.addEventListener('DOMContentLoaded', async () => {
+        let cartId;
+        try {
+            const userResponse = await fetch('/api/sessions/current');
+            if (!userResponse.ok) {
+                throw new Error('No se pudo obtener la información del usuario.');
+            }
+
+            const userData = await userResponse.json();
+            console.log('userData:', userData);
+
+            cartId = userData.cart ? userData.cart : null;  // Verifica si existe el carrito
+            console.log('cartId:', cartId);
+
+            if (!cartId) {
+                console.log('El usuario no tiene un carrito asignado.');
+                alert('No tienes un carrito disponible. Por favor, crea uno antes de agregar productos.');
+            }
+        } catch (error) {
+            console.error('Error al obtener el cartId del usuario:', error);
+            return;
+        } */
 
     const cartButtons = document.querySelectorAll('.add-to-cart');
 
@@ -56,3 +81,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 });
+//});

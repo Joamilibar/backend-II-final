@@ -36,7 +36,7 @@ export default class SessionsController {
     };
 
 
-    static login = async (req, res) => {
+    static login = async (req, res, next) => {
         if (!req.user) return res.status(400).send({ status: "error", error: "Credenciales Invalidas" })
 
         req.session.user = {
@@ -51,7 +51,8 @@ export default class SessionsController {
         let token = Utils.createToken(req.user);
         console.log(token)
         res.cookie('token', token, { httpOnly: true, maxAge: 60 * 30 * 1000 });
-        res.redirect('/profile');
+        next();
+        //res.redirect('/profile');
 
         /*  if (req.user.role === 'admin') {
     return res.redirect('/admin');
@@ -89,17 +90,32 @@ export default class SessionsController {
     };
 
 
-    static current = async (req, res) => {
-        let token = req.cookies.token;
+    static roleAccess = async (req, res) => {
+        try {
+            let token = req.cookies.token;
+            const user = req.user || req.session.user;
+            if (!token) {
+                return res.send({ status: "error", error: "No authenticated user" })
+            }
 
-        if (!token) {
-            return res.send({ status: "error", error: "No authenticated user" })
+            if (user.role === 'admin') {
+                return res.redirect('/api/cart')
+            }
+            if (user.role === 'user') {
+                return res.redirect('/products')
+            }
+
+        } catch (error) {
+            return res.status(403).send({ status: 'error', message: 'Acces denied. Only users with allowed roles' });
+            // return res.status(500).send({ status: "error", error: "Error al obtener el usuario" })
         }
 
-        const decoded = Auth.verifyToken(token);
-        console.log('Decoded User: ', decoded)
-        return res.send(decoded.user);
-    }
 
-}
+        /* const decoded = Auth.verifyToken(token);
+        //console.log('Decoded User: ', decoded)
+        return res.send(decoded);
+    */
+
+    }
+};
 

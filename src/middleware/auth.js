@@ -48,12 +48,31 @@ export default class Auth {
     static verifyToken = (token, next) => {
         try {
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
+            console.log(decoded);
             return decoded;
         } catch (error) {
             console.error("Error al verificar el token:", error);
             //throw new Error("Token inválido o expirado");
         }
     };
+
+    static isAdmin = (req, res, next) => {
+        const user = req.user || req.session.user; // Dependiendo de cómo manejes la autenticación
+        if (user && user.role === 'admin') {
+            return next();
+        }
+        return res.status(403).send({ status: 'error', message: 'Acceso denegado. Sólo administradores pueden realizar esta acción.' });
+    }
+
+    // Middleware para verificar si el usuario tiene rol de usuario
+    static isUser = (req, res, next) => {
+        const user = req.user || req.session.user; // Dependiendo de cómo manejes la autenticación
+        if (user && user.role === 'user') {
+            return next();
+        }
+        return res.status(403).send({ status: 'error', message: 'Acceso denegado. Sólo los usuarios pueden agregar productos al carrito.' });
+    }
+
 
     static accessRole = (roles) => {
         return (req, res, next) => {
@@ -62,7 +81,7 @@ export default class Auth {
             if (roles.includes(userRole)) {
                 return next();
             }
-            return res.status(403).send({ status: "error", message: "Acceso denegado" });
+            return res.status(403).send({ status: "error", message: "Acceso denegado" }).next();
 
 
 
