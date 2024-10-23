@@ -13,38 +13,38 @@ import Utils from '../../common/utils.js';
 
 
 const router = express.Router();
-const productDao = new productDAO();
-//const cartDao = new CartDAO();
 
-router.post('/add-product', async (req, res) => {
-    const { productId } = req.body;
-    const userId = req.user._id; // Asegúrate de que el usuario esté autenticado
 
-    try {
-        let cart = await cartDAO.getCartByUserId(userId); // Obtener el carrito del usuario (o crear uno si no existe)
+router.post('/add-product', Auth.isAuthenticated, CartController.addProduct);
+/* async (req, res) => {
+const { productId } = req.body;
+const userId = req.user._id; // Asegúrate de que el usuario esté autenticado
 
-        if (!cart) {
-            cart = await cartDAO.createCart(userId); // Si no existe, creamos uno
-        }
+try {
+    let cart = await CartDAO.getCartByUserId(userId); // Obtener el carrito del usuario (o crear uno si no existe)
 
-        const productIndex = cart.products.findIndex(item => item.product.toString() === productId);
-
-        if (productIndex === -1) {
-            // Si el producto no está en el carrito, lo agregamos
-            cart.products.push({ product: productId, quantity: 1 });
-        } else {
-            // Si ya existe, actualizamos la cantidad
-            cart.products[productIndex].quantity += 1;
-        }
-
-        await cart.save(); // Guardar los cambios en la base de datos
-
-        res.status(200).send({ status: 'success', payload: cart });
-    } catch (error) {
-        console.error('Error al agregar producto al carrito:', error);
-        res.status(500).send({ status: 'error', message: 'Error al agregar producto al carrito' });
+    if (!cart) {
+        cart = await CartDAO.createCart(userId); // Si no existe, creamos uno
     }
-});
+
+    const productIndex = cart.products.findIndex(item => item.product.toString() === productId);
+
+    if (productIndex === -1) {
+        // Si el producto no está en el carrito, lo agregamos
+        cart.products.push({ product: productId, quantity: 1 });
+    } else {
+        // Si ya existe, actualizamos la cantidad
+        cart.products[productIndex].quantity += 1;
+    }
+
+    await cart.save(); // Guardar los cambios en la base de datos
+
+    res.status(200).send({ status: 'success', payload: cart });
+} catch (error) {
+    console.error('Error al agregar producto al carrito:', error);
+    res.status(500).send({ status: 'error', message: 'Error al agregar producto al carrito' });
+}
+}); */
 
 router.get("/carts", CartController.getCarts);
 

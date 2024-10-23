@@ -26,6 +26,10 @@ export default class CartDAO {
         }
     }
 
+    getCartByUserId = async (userId) => {
+        return await Cart.findOne({ user: userId });
+    }
+
     createCart = async (user) => {
         try {
             console.log("Creando carrito para el usuario:", user);

@@ -4,7 +4,7 @@
   <p>{{product.description}}</p>
   <p>Precio: {{product.price}}</p>
   <p>Categoría: {{product.category}}</p>
-  <button onclick="addToCart('{{product._id}}')">Agregar al carrito</button>
+  <button onclick="addToCart('{{product._id}}')')">Agregar al carrito</button>
   <script>
     async function addToCart(productId) { try { const response = await
     fetch(`/api/carts/add-product`, { method: 'POST', headers: { 'Content-Type':
@@ -12,9 +12,17 @@
     = await response.json(); if (result.status === 'success') { alert('Producto
     agregado al carrito correctamente'); } else { alert('Error al agregar el
     producto al carrito'); } } catch (error) { console.error('Error al agregar
-    el producto:', error); alert('Error al agregar el producto al carrito'); }
-    function addToCart(productId) { // Lógica para agregar el producto al
-    carrito console.log(`Producto ${productId} agregado al carrito`); }
-
+    el producto:', error); alert('Error al agregar el producto al carrito'); } }
   </script>
 </div>
+
+{{! async function addToCart(productId) { try { const response = await
+    fetch(`/api/carts/add-product`, { method: 'POST', headers: { 'Content-Type':
+    'application/json', }, body: JSON.stringify({ productId }), }); const result
+    = await response.json(); if (result.status === 'success') { alert('Producto
+    agregado al carrito correctamente'); } else { alert('Error al agregar el
+    producto al carrito'); } } catch (error) { console.error('Error al agregar
+    el producto:', error); alert('Error al agregar el producto al carrito'); } }}
+
+{{! function addToCart(productId) { // Lógica para agregar el producto al
+    carrito console.log(`Producto ${productId} agregado al carrito`); } }}

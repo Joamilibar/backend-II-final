@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const userResponse = await fetch('/api/sessions/current');
         const userData = await userResponse.json();
         console.log('userData:', userData);
-        cartId = userData.email.cartId;  // El cartId del usuario
+        cartId = userData.cartId; // Accede al cartId directamente
         console.log('cartId:', cartId);
 
         if (!cartId) {
