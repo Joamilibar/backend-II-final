@@ -51,7 +51,7 @@ export default class Utils {
 
     }
 
-    isValidEmail(email) { // Lo puedo pasar a utils ya que es una función que se puede reutilizar
+    static isValidEmail(email) { // Lo puedo pasar a utils ya que es una función que se puede reutilizar
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }

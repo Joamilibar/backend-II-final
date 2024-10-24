@@ -12,6 +12,7 @@ const viewDAO = new ViewDAO();
 export default class ViewsController {
 
     static loginView = async (req, res) => {
+
         res.render('login');
 
     };
@@ -37,22 +38,18 @@ export default class ViewsController {
 
 
     static currentView = async (req, res) => {
-        const user = req.session.user;
-        console.log('Usuario Registrado: ', user);
+        try {
+            const user = req.session.user;
+            console.log('Usuario Registrado: ', user);
 
-        if (user.role === 'admin') {
-            return res.render('cart', { user }).json({
-                first_name: user.first_name,
-                email: user.email,
-                cartId: user.cart
-            });
-        }
-        if (user.role === 'user') {
-            return res.render('products', { user }).json({
-                first_name: user.first_name,
-                email: user.email,
-                cartId: user.cart
-            });
+            if (user.role === 'admin') {
+                res.redirect('/index')
+            }
+            if (user.role === 'user') {
+                res.redirect('/products')
+            };
+        } catch (error) {
+            res.send({ status: "error", payload: "You need to login" });
 
         }
     }

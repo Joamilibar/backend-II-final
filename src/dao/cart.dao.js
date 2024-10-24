@@ -68,19 +68,58 @@ export default class CartDAO {
         }
     }
 
-    addProductToCart = async (cid, pid) => {
+    addProductToCart = async (cid, pid, quantity = 1) => {
         try {
-            let cart = await CartModel.findById(cid);
-            let product = await ProductModel.findById(pid);
-            cart.products.push(product);
-            cart.save();
-            return cart;
+            const cart = await Cart.findById(cartId); // Encuentra el carrito por ID
+            if (!cart) {
+                throw new Error('Carrito no encontrado');
+            }
+
+            const productIndex = cart.products.findIndex(p => p.product.toString() === productId);
+            if (productIndex !== -1) {
+                // Si el producto ya existe en el carrito, actualiza la cantidad
+                cart.products[productIndex].quantity += quantity;
+            } else {
+                // Si el producto no existe en el carrito, lo agrega con la cantidad especificada
+                cart.products.push({ product: productId, quantity });
+            }
+
+            const updatedCart = await cart.save(); // Guarda el carrito actualizado
+            return updatedCart;
         } catch (error) {
-            console.error("Error en addProductToCart:", error);
-            return null;
+            console.error('Error al agregar producto al carrito:', error);
+            throw error; // Asegúrate de que el error sea propagado
         }
     }
+    /* try {
+        let cart = await CartModel.findById(cid);
+        let product = await ProductModel.findById(pid);
+        if (!cart) {
+            throw new Error('Carrito no encontrado'); // Cambiar para Crear Carrito
+        }
+        if (!product) {
+            throw new Error('Producto no encontrado');
+        }
 
+        const existingProductIndex = cart.products.findIndex(item => item.product.toString() === pid);
+
+        if (existingProductIndex !== -1) {
+            // Si el producto ya existe, actualiza la cantidad
+            cart.products[existingProductIndex].quantity += quantity;
+        } else {
+            // Si no existe, lo agrega con la cantidad inicial
+            cart.products.push({ product: product._id, quantity });
+        }
+
+        //cart.products.push(product);
+        await cart.save();
+        return cart;
+    } catch (error) {
+        console.error("Error en addProductToCart:", error);
+        return null;
+    }
+}
+*/
     removeProductFromCart = async (cid, pid) => {
         try {
             let cart = await CartModel.findById({ _id: cid });

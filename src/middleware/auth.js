@@ -64,13 +64,13 @@ export default class Auth {
         return res.status(403).send({ status: 'error', message: 'Acceso denegado. Sólo administradores pueden realizar esta acción.' });
     }
 
-    // Middleware para verificar si el usuario tiene rol de usuario
     static isUser = (req, res, next) => {
         const user = req.user || req.session.user; // Dependiendo de cómo manejes la autenticación
         if (user && user.role === 'user') {
             return next();
         }
-        return res.status(403).send({ status: 'error', message: 'Acceso denegado. Sólo los usuarios pueden agregar productos al carrito.' });
+        alert('Acceso denegado. Sólo los usuarios pueden agregar productos al carrito.');
+        //return res.status(403).send({ status: 'error', message: 'Acceso denegado. Sólo los usuarios pueden agregar productos al carrito.' });
     }
 
 

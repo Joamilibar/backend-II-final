@@ -51,8 +51,8 @@ export default class SessionsController {
         let token = Utils.createToken(req.user);
         console.log(token)
         res.cookie('token', token, { httpOnly: true, maxAge: 60 * 30 * 1000 });
+
         next();
-        //res.redirect('/profile');
 
         /*  if (req.user.role === 'admin') {
     return res.redirect('/admin');
@@ -90,31 +90,34 @@ export default class SessionsController {
     };
 
 
-    static roleAccess = async (req, res) => {
+    static current = async (req, res, next) => {
+        let token = req.cookies.token;
+        if (!token) {
+            return res.send({ status: "error", error: "No authenticated user" })
+        }
         try {
-            let token = req.cookies.token;
-            const user = req.user || req.session.user;
-            if (!token) {
-                return res.send({ status: "error", error: "No authenticated user" })
-            }
+            let decoded = Auth.verifyToken(token);
+            const userData = {
+                first_name: decoded.email.first_name,
+                last_name: decoded.email.last_name,
+                email: decoded.email.email,
+                age: decoded.email.age,
+                cartId: decoded.email.cartId,
+                role: decoded.email.role
+            };
+            /*   if (decoded.role === 'admin') {
+                  return res.redirect('cart')
+              }
+              if (decoded.role === 'user') {
+                  return res.render('product')
+              }; */
+            console.log('Decoded User: ', userData)
+            return res.status(200).send(userData);
 
-            if (user.role === 'admin') {
-                return res.redirect('/api/cart')
-            }
-            if (user.role === 'user') {
-                return res.redirect('/products')
-            }
 
         } catch (error) {
-            return res.status(403).send({ status: 'error', message: 'Acces denied. Only users with allowed roles' });
-            // return res.status(500).send({ status: "error", error: "Error al obtener el usuario" })
+            console.error(error)
         }
-
-
-        /* const decoded = Auth.verifyToken(token);
-        //console.log('Decoded User: ', decoded)
-        return res.send(decoded);
-    */
 
     }
 };

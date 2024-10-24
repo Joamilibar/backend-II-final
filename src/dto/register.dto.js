@@ -1,6 +1,6 @@
 import Utils from '../common/utils.js';
 
-const isValidEmail = Utils.isValidEmail;
+
 
 
 export default class RegisterDTO {
@@ -20,7 +20,7 @@ export default class RegisterDTO {
         role
 
     } = {}) {
-        if (!email || !this.isValidEmail(email)) {
+        if (!email || !this.Utils.isValidEmail(email)) {
             throw new Error('Invalid email');
         }
         if (!password || typeof password !== 'string' || password.length < 5) {

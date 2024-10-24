@@ -14,11 +14,13 @@ router.get('/register', Auth.isNotAuthenticated, ViewsController.registerView);
 
 router.get('/profile', Auth.isAuthenticated, ViewsController.profileView);
 
-router.get('/update', Auth.isNotAuthenticated, ViewsController.updateView);
+router.get('/update', Auth.isAuthenticated, Auth.isAdmin, ViewsController.updateView);
 
-router.get('/current', Auth.isAuthenticated, ViewsController.currentView);
+router.get('/current', Auth.isAuthenticated, ViewsController.profileView);
 
-router.get('/products', Auth.isAuthenticated, ViewsController.productView);
+router.get('/currentView', Auth.isAuthenticated, ViewsController.currentView);
+
+router.get('/products', Auth.isAuthenticated, Auth.isUser, ViewsController.productView);
 
 router.get("/products/:pid", Auth.isAuthenticated, ViewsController.getProductById);
 

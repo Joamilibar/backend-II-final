@@ -8,11 +8,10 @@
         <p>Precio: {{this.price}}</p>
         <p>Categoría: {{this.category}}</p>
         <button class="add-to-cart" data-id="{{this._id}}">Agregar al carrito</button>
-        {{!-- <button onclick="addToCart('{{this._id}}')">Agregar al carrito</button> --}}
-        <strong>{{product.title}}</strong>
       </li>
     {{/each}}
   </ul>
+
   <div>
     {{#if (gt currentPage 1)}}
       <a href="/products?page={{subtract currentPage 1}}">Anterior</a>
@@ -21,9 +20,6 @@
       <a href="/products?page={{add currentPage 1}}">Siguiente</a>
     {{/if}}
   </div>
-
 </div>
 
-{{! <script src="/socket.io/socket.io.js"></script> }}
-{{! <script src="/js/index.js"></script> }}
 <script src="/js/view.index.js"></script>

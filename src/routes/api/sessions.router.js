@@ -5,6 +5,7 @@ import passport from 'passport';
 import Auth from '../../middleware/auth.js';
 import SessionsController from '../../controllers/sessions.controller.js';
 import Utils from '../../common/utils.js';
+import ViewsController from '../../controllers/views.controller.js';
 
 
 
@@ -15,7 +16,7 @@ router.post('/register', passport.authenticate('register', { failureRedirect: '/
 
 router.get('/failregister', SessionsController.failRegister);
 
-router.post('/login', passport.authenticate('login', { failureRedirect: '/faillogin' }), SessionsController.login, SessionsController.roleAccess);
+router.post('/login', passport.authenticate('login', { failureRedirect: '/faillogin' }), SessionsController.login, ViewsController.currentView);
 
 router.get('/faillogin', SessionsController.failLogin);
 
@@ -23,7 +24,7 @@ router.post('/logout', Auth.isAuthenticated, SessionsController.logout);
 
 router.post('/update', SessionsController.update);
 
-router.get('/current', Auth.isAuthenticated, Utils.passportCall('jwt') /* Auth.accessRole, */ /* SessionsController.current */);
+router.get('/current', Auth.isAuthenticated, Utils.passportCall('jwt'), SessionsController.current);
 
 
 export default router;
