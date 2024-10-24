@@ -166,7 +166,7 @@ export default class CartController {
     static updateProductInCart = async (req, res) => {
         try {
             const { cid, pid } = req.params; // ID del carrito y del producto
-            const { quantity } = req.body; // Cantidad de producto a actualizar
+            let { quantity } = req.body; // Cantidad de producto a actualizar
 
             // Verificar que quantity sea un número válido
             if (!quantity || isNaN(quantity)) {
@@ -179,7 +179,7 @@ export default class CartController {
             }
 
             // Llama a la función del DAO para actualizar el carrito
-            const updatedCart = await cartDAO.addProductToCart(cid, pid, quantity);
+            const updatedCart = await cartDAO.addProductToCart(cid, pid, quantity = 1);
 
             res.status(200).send({ status: "success", payload: updatedCart });
         } catch (error) {

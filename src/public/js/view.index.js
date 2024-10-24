@@ -5,10 +5,11 @@ async function addProductToCart(cartId, productId, quantity) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ quantity }) // Se envía la cantidad por defecto (1)
+            body: JSON.stringify({ quantity: 1 }) // Se envía la cantidad por defecto (1)
         });
 
         const result = await response.json();
+        console.log('Resultado de agregar producto al carrito:', result);
 
         if (result.status === 'success') {
             alert('Producto agregado al carrito');

@@ -68,20 +68,20 @@ export default class CartDAO {
         }
     }
 
-    addProductToCart = async (cid, pid, quantity = 1) => {
+    addProductToCart = async (cid, pid, quantity) => {
         try {
-            const cart = await Cart.findById(cartId); // Encuentra el carrito por ID
+            const cart = await CartModel.findById(cid); // Encuentra el carrito por ID
             if (!cart) {
                 throw new Error('Carrito no encontrado');
             }
 
-            const productIndex = cart.products.findIndex(p => p.product.toString() === productId);
+            const productIndex = cart.products.findIndex(p => p.product.toString() === pid);
             if (productIndex !== -1) {
                 // Si el producto ya existe en el carrito, actualiza la cantidad
                 cart.products[productIndex].quantity += quantity;
             } else {
                 // Si el producto no existe en el carrito, lo agrega con la cantidad especificada
-                cart.products.push({ product: productId, quantity });
+                cart.products.push({ product: pid, quantity });
             }
 
             const updatedCart = await cart.save(); // Guarda el carrito actualizado
