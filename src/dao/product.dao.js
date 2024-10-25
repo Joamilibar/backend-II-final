@@ -23,7 +23,7 @@ export default class ProductDAO {
 
     getProductById = async (id) => {
         try {
-            let products = await ProductModel.findById({ _id: id })
+            let products = await ProductModel.findById(id)
             return products
         } catch (error) {
             console.error("Error en getProductById:", error);
@@ -47,6 +47,16 @@ export default class ProductDAO {
             return updatedProduct;
         } catch (error) {
             console.error("Error en updateProduct:", error);
+            return null;
+        }
+    }
+
+    updateProductStock = async (id, stock) => {
+        try {
+
+            return await ProductModel.findByIdAndUpdate(id, { stock: stock }, { new: true });
+        } catch (error) {
+            console.error("Error en updateProductStock:", error);
             return null;
         }
     }

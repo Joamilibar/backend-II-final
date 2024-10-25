@@ -1,26 +1,27 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
-
-const ticketCollection = "tickets";
+import mongoose from 'mongoose';
 
 const ticketSchema = new mongoose.Schema({
-    code: {
-        type: String,
-        unique: true,
-        default: () => uuidv4(),  // Autogenerar un código único usando uuid
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
-    purchase_datetime: {
+    products: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product',
+            required: true
+        },
+        quantity: {
+            type: Number,
+            required: true
+        }
+    }],
+    createdAt: {
         type: Date,
-        default: Date.now,  // Guarda la fecha y hora exacta cuando se crea
-        required: true
-    },
-    amount: {
-        type: Number,
-        required: true  // Total de la compra
-    },
-    purchaser: {
-        type: String,
-        required: true  // Correo del usuario asociado
+        default: Date.now
     }
 });
+
+const TicketModel = mongoose.model('Ticket', ticketSchema);
+export default TicketModel;

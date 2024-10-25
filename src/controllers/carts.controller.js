@@ -5,7 +5,6 @@ import ProductModel from "../dao/models/product.model.js";
 import CartModel from "../dao/models/cart.model.js";
 import __dirname from "../common/utils.js";
 import SessionsService from "../services/sessions.service.js";
-import RegisterDTO from "../dto/register.dto.js";
 import ProductDAO from "../dao/product.dao.js";
 import CartDAO from "../dao/cart.dao.js";
 import dotenv from "dotenv";
@@ -66,7 +65,6 @@ export default class CartController {
                 page: req.query.page || 1
             };
 
-            // Llamada al método getCarts del DAO
             const carts = await cartDAO.getCarts(filter, options);
 
             if (carts) {
@@ -187,56 +185,129 @@ export default class CartController {
             res.status(500).send({ status: "error", message: error.message });
         }
 
-    };
-
-    /* static async updateProductInCart(req, res) {
-        try {
-            const { cid } = req.params; // ID del carrito
-            const { productId, quantity } = req.body; // Asegúrate de que estos campos vengan en la solicitud
-
-            // Llamada a la función del DAO
-            const updatedCart = await cartDAO.addProductToCart(cid, { productId, quantity });
-
-            res.status(200).send({ status: "success", payload: updatedCart });
-        } catch (error) {
-            res.status(500).send({ status: "error", message: error.message });
-        }
     }
- */
+
+    static purchaseCart = async (req, res) => {
+
+        /*  try {
+             const { cartId, productId, quantity } = req.body;
+             const updatedCart = await cartDAO.updateCartProduct(cartId, productId, quantity);
+             res.status(200).json(updatedCart);
+         } catch (error) {
+             console.error('Error al procesar la compra:', error);
+             res.status(400).json({ error: error.message });
+         }
+     }; */
 
 
 
-    /* const { cid, pid } = req.params;
-    const { productId, quantity } = req.body;
+        try {
+            const { cid, pid, quantity } = req.params;
+            //const { cid } = req.params; // ID del carrito
 
-    try {
-        // Buscar el carrito
-        let cart = await cartDAO.getCartById(cid);
+            const cart = await cartDAO.getCartById(cid); // Obtén el carrito
 
-        if (!cart) {
-            return res.status(404).send({ status: "error", payload: "El carrito no existe" });
+            if (!cart) {
+                return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
+            }
+
+            const productsNotPurchased = [];
+            const productsPurchased = [];
+
+            for (const item of cart.products) {
+                const product = await productDAO.getProductById(item.product);
+
+                if (!product) {
+                    productsNotPurchased.push({ ...item, reason: 'Producto no encontrado' });
+                    continue;
+                }
+
+                if (product.stock >= item.quantity) {
+                    product.stock -= item.quantity;
+                    await productDAO.updateProductStock(product._id, product.stock);
+                    productsPurchased.push(item);
+                } else {
+                    productsNotPurchased.push({
+                        ...item,
+                        reason: `Stock insuficiente. Stock disponible: ${product.stock}`,
+                    });
+                }
+            }
+
+
+            // Actualizar el carrito solo con productos no comprados (para reflejar el estado actualizado del carrito)
+            await cartDAO.updateCartProduct(cid, pid, quantity, productsNotPurchased);
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Compra procesada exitosamente',
+                purchased: productsPurchased,
+                notPurchased: productsNotPurchased,
+            });
+        } catch (error) {
+            console.error("Error al procesar la compra:", error);
+            res.status(500).json({ status: 'error', message: error.message });
         }
 
-        // Buscar el producto en el carrito
-        const productIndex = cart.products.findIndex(item => item.product && item.product.toString() === pid);
-
-        // Si el producto no existe en el carrito, agregarlo
-        if (productIndex === -1) {
-            cart = await cartDAO.addProductToCart(cid, { product: pid, quantity: quantity + 1 });
-        } else {
-            // Si el producto existe, actualiza la cantidad
-            cart.products[productIndex].quantity += quantity;
-
-            // Guardar los cambios en la base de datos
-            await cartDAO.updateCartProduct(cid, cart.products);
-        }
-
-        res.send({ status: "success", payload: cart });
-
-    } catch (error) {
-        console.error("Error al actualizar el producto en el carrito:", error);
-        res.status(500).send({ status: "error", payload: "Error al actualizar el producto en el carrito" });
-    } */
 
 
-};
+
+        /*  static purchaseCart = async (req, res) => {
+             try {
+                 const { cid } = req.params; // ID del carrito
+                 const cart = await cartDAO.getCartById(cid); // Obtener carrito por ID
+     
+                 if (!cart) {
+                     return res.status(404).send({ status: 'error', message: 'Carrito no encontrado' });
+                 }
+     
+                 const productsNotPurchased = [];
+                 const productsPurchased = [];
+     
+                 // Iterar sobre los productos del carrito
+                 for (const item of cart.products) {
+                     const product = await productDAO.getProductById(item.productId);
+     
+                     if (!product) {
+                         productsNotPurchased.push({ ...item, reason: 'Producto no encontrado' });
+                         continue;
+                     }
+     
+                     if (product.stock >= item.quantity) {
+                         // Si hay suficiente stock, restar la cantidad comprada del stock
+                         product.stock -= item.quantity;
+                         await productDAO.updateProductStock(product._id, product.stock);
+                         productsPurchased.push(item); // Agregar a los productos comprados
+                     } else {
+                         // Si no hay suficiente stock, agregar a la lista de no comprados
+                         productsNotPurchased.push({
+                             ...item,
+                             reason: `Stock insuficiente. Stock disponible: ${product.stock}`,
+                         });
+                     }
+                 }
+     
+                 // Limpiar los productos comprados del carrito
+                 const remainingProducts = cart.products.filter(item =>
+                     !productsPurchased.some(purchased => purchased.productId === item.productId)
+                 );
+     
+                 await cartDAO.updateCartProduct(cid, remainingProducts);
+     
+                 // Responder con el resumen de la compra
+                 res.status(200).json({ message: 'Compra procesada exitosamente' });
+     
+                  res.status(200).send({
+                      status: 'success',
+                      message: 'Compra finalizada',
+                      purchased: productsPurchased,
+                      notPurchased: productsNotPurchased,
+                  }); 
+             } catch (error) {
+                 res.status(500).send({ status: 'error', message: error.message });
+             }
+     
+         //} */
+
+    };
+}

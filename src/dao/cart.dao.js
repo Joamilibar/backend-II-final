@@ -91,35 +91,7 @@ export default class CartDAO {
             throw error; // Asegúrate de que el error sea propagado
         }
     }
-    /* try {
-        let cart = await CartModel.findById(cid);
-        let product = await ProductModel.findById(pid);
-        if (!cart) {
-            throw new Error('Carrito no encontrado'); // Cambiar para Crear Carrito
-        }
-        if (!product) {
-            throw new Error('Producto no encontrado');
-        }
 
-        const existingProductIndex = cart.products.findIndex(item => item.product.toString() === pid);
-
-        if (existingProductIndex !== -1) {
-            // Si el producto ya existe, actualiza la cantidad
-            cart.products[existingProductIndex].quantity += quantity;
-        } else {
-            // Si no existe, lo agrega con la cantidad inicial
-            cart.products.push({ product: product._id, quantity });
-        }
-
-        //cart.products.push(product);
-        await cart.save();
-        return cart;
-    } catch (error) {
-        console.error("Error en addProductToCart:", error);
-        return null;
-    }
-}
-*/
     removeProductFromCart = async (cid, pid) => {
         try {
             let cart = await CartModel.findById({ _id: cid });
@@ -135,9 +107,32 @@ export default class CartDAO {
 
     updateCartProduct = async (cid, pid, quantity) => {
         try {
-            return await CartModel.updateOne({ _id: cartId }, { products });
+            // Busca el carrito
+            const cart = await CartModel.findById(cid, pid);
+            if (!cart) {
+                console.error(`Carrito con id ${cid} no encontrado`);
+                return null;
+            }
+            console.log(pid)
+            // Busca si el producto ya existe en el carrito
+            const productIndex = cart.products.findIndex(p => p.product.equals(pid));
+
+
+            if (productIndex !== -1) {
+                // Si el producto ya está en el carrito, actualiza la cantidad
+
+                cart.products[productIndex].quantity += quantity;
+            } else {
+                // Si el producto no está en el carrito, lo agrega
+                cart.products.push({ product: pid, quantity });
+            }
+
+            console.log(cart)
+            // Guarda los cambios
+            await cart.save();
+            return cart;
         } catch (error) {
-            console.error("Error al actualizar los productos en el carrito:", error);
+            console.error("Error al actualizar o agregar el producto al carrito:", error);
             return null;
         }
     }

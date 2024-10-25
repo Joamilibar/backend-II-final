@@ -25,11 +25,11 @@ router.get('/products', Auth.isAuthenticated, Auth.isUser, ViewsController.produ
 router.get("/products/:pid", Auth.isAuthenticated, ViewsController.getProductById);
 
 // GET /carts/cid - Mostrar carrito en vista Handlebars
-router.get("/carts/:cid", ViewsController.getCartById);
+router.get("/carts/:cid", ViewsController.getCartById); //** */
 
 // PUT /carts/:cid/products/:pid - Actualizar producto(s) en carrito por id
 
-router.put('/carts/:cid/products/:pid', ViewsController.cartProductUpdateView);
+router.put('/carts/:cid/products/:pid', ViewsController.cartProductUpdateView); //** */
 
 export default router;
 

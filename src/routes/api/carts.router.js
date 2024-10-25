@@ -7,6 +7,7 @@ import CartDAO from '../../dao/cart.dao.js';
 import productDAO from '../../dao/product.dao.js';
 import Auth from '../../middleware/auth.js';
 import User from '../../dao/models/user.model.js';
+
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import Utils from '../../common/utils.js';
@@ -46,15 +47,21 @@ try {
 }
 }); */
 
-router.get("/carts", CartController.getCarts);
+router.get("/carts", Auth.isAuthenticated, CartController.getCarts);
 
 
-router.get("/carts/:cid", CartController.getCartById);
+router.get("/carts/:cid", Auth.isAuthenticated, CartController.getCartById);
 
 
 // PUT /api/carts/:cid - Actualizar carrito por id
 
-router.put("/carts/:cid", async (req, res) => {
+router.put("/carts/:cid", Auth.isAuthenticated, CartController.updateProductInCart);
+
+router.post("/carts/:cid/purchase", Auth.isAuthenticated, CartController.purchaseCart);
+
+//router.post('/purchase/:cartId/:productId/:quantity', CartController.purchaseCart);
+
+/* router.put("/carts/:cid", async (req, res) => {
     const { cid } = req.params;
     const { products } = req.body;
 
@@ -75,57 +82,14 @@ router.put("/carts/:cid", async (req, res) => {
     } catch (error) {
         res.send({ status: "error", payload: "El carrito no existe" });
     }
-});
+}); */
 
 
 // PUT /api/carts/:cid/products/:pid - Actualizar producto(s) en carrito por id
 
-router.put('/carts/:cid/products/:pid', CartController.updateProductInCart);
-
-/* async (req, res) => {
-
-const { cid, pid } = req.params;
-const { quantity } = req.body;
-console.log("Cantidad: ", quantity);
-
-try {
-
-    let cart = await CartModel.findOne({ _id: cid }); //.populate("carts.cart");
-    console.log("Carrito Encontrado: ");
-    //console.log(cart.products);
+router.put('/carts/:cid/products/:pid', Auth.isAuthenticated, CartController.updateProductInCart);
 
 
-    if (!cart) {
-
-        return res.send({ status: "error", payload: "El carrito no existe" });
-    }
-
-    // Buscar el producto en el carrito
-    const productIndex = cart.products.findIndex(item => item.product && item.product.toString() === pid);
-    console.log("Indice Producto en carrito: ", productIndex)
-
-
-    //Verifico si el producto ya existe en el carrito
-    if (productIndex === -1) {
-        // return res.send({ status: "error", payload: "El producto no está en el carrito" });
-        cart.products.push({ product: pid, quantity: quantity });
-
-    }
-
-    cart.products[productIndex].quantity = quantity;
-
-    // Actualizar cambios en base de datos
-    let result = await CartModel.updateOne({ _id: cid }, { products: cart.products });
-
-    res.send({ status: "success", payload: result });
-
-}
-
-catch (error) {
-    return res.send({ status: "error", payload: "El producto no existe" });
-} 
-
-});*/
 
 // Crear carrito en Mongo
 
