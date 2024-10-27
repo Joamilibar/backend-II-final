@@ -3,6 +3,7 @@ import ProductDAO from '../dao/product.dao.js';
 import CartDAO from '../dao/cart.dao.js';
 import ViewDAO from '../dao/view.dao.js';
 import CartController from './carts.controller.js';
+import ProductModel from '../dao/models/product.model.js';
 
 
 const productDAO = new ProductDAO();
@@ -57,7 +58,7 @@ export default class ViewsController {
     static productView = async (req, res) => {
         try {
             const products = await viewDAO.getProducts();
-
+            console.log('PRODUCTOS PRUCT VIEW', products)
             res.render('index', { title: 'Lista de Productos', products });
         } catch (error) {
             res.status(500).send('Error al obtener los productos');
@@ -85,9 +86,9 @@ export default class ViewsController {
         const { cid } = req.params;
 
         try {
-            // Buscar el carrito
+
             const cart = await viewDAO.getCartById(cid);
-            // Renderizar la vista
+
             res.render('cart', { title: 'Carrito de Compra', cart: cart });
         }
         catch (error) {

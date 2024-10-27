@@ -17,20 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }),
             });
 
-            // Asegúrate de que el response sea exitoso
+
             if (!response.ok) {
-                const errorData = await response.json(); // Maneja error de respuesta
+                const errorData = await response.json();
                 throw new Error(errorData.message || 'Error desconocido');
             }
 
             const data = await response.json();
+            console.log('Resultado de la compra:', data);
+            if (data.status === 'success') {
 
-            // Manejo de compra exitosa
-            if (data.success) { // Cambié 'data.status === 'success'' por 'data.success' para alinearse con el backend
                 purchaseMessage.innerHTML = `<p style="color: green;">Compra finalizada con éxito. Tu ticket ha sido generado.</p>`;
             } else {
-                // Manejo de productos no comprados
-                const notPurchasedProducts = data.unprocessedIds; // Cambié 'data.notPurchased' a 'data.unprocessedIds'
+                const notPurchasedProducts = data.notPurchased;
                 if (notPurchasedProducts.length > 0) {
                     purchaseMessage.innerHTML = `
                         <p style="color: red;">Compra incompleta. Los siguientes productos no se pudieron comprar:</p>
@@ -41,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (error) {
-            purchaseMessage.innerHTML = `<p style="color: red;">Error al procesar la compra: ${error.message}</p>`;
+            purchaseMessage.innerHTML = `<p style="color: red;">Error al procesar la compra (cart.js): ${error.message}</p>`;
         }
     });
 });

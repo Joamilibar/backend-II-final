@@ -18,7 +18,7 @@ export default class CartDAO {
 
     getCartById = async (id) => {
         try {
-            let cart = await CartModel.findById(id).populate("products.product");
+            let cart = await CartModel.findById(id)//.populate("products.product");
             return cart
         } catch (error) {
             console.error("Error en getCartById:", error);
@@ -50,7 +50,23 @@ export default class CartDAO {
 
     updateCart = async (id, cartData) => {
         try {
-            const updatedCart = await CartModel.findByIdAndUpdate(id, cartData, { new: true });
+
+            console.log('ESTE CART', cartData)
+            //console.log('ESTE ID', id)
+
+            if (!id || !cartData) {
+                throw new Error('ID de carrito o productos actualizados no proporcionados');
+            }
+            const updatedCart = await CartModel.findByIdAndUpdate(
+                id,
+                { $set: { products: cartData } },
+                { new: true, runValidators: true }
+            );
+            if (!updatedCart) {
+                throw new Error('Carrito no encontrado');
+            }
+            console.log('UPDATED CART', updatedCart)
+            // const updatedCart = await CartModel.updateOne({ _id: id }, cartData, { new: true });
             return updatedCart;
         } catch (error) {
             console.error("Error en updateCart:", error);
@@ -74,7 +90,9 @@ export default class CartDAO {
             if (!cart) {
                 throw new Error('Carrito no encontrado');
             }
-
+            console.log('ESTE PRODUCTO', pid)
+            console.log('ESTA CANTIDAD', quantity)
+            console.log('ESTE CART', cart)
             const productIndex = cart.products.findIndex(p => p.product.toString() === pid);
             if (productIndex !== -1) {
                 // Si el producto ya existe en el carrito, actualiza la cantidad

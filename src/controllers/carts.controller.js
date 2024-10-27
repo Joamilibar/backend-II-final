@@ -22,34 +22,35 @@ export default class CartController {
     static addProduct = async (req, res) => {
         const { productId } = req.body;
         const userId = req.user._id;  // Obtener el ID del usuario autenticado
-
+        console.log(productId)
+        console.log(userId)
         try {
-            // Verificar que el producto exista
+
             const product = await ProductDAO.getProductById(productId);
             if (!product) {
                 return res.status(404).send({ status: 'error', message: 'Producto no encontrado' });
             }
 
-            // Obtener el carrito del usuario o crear uno si no existe
+
             let cart = await CartDAO.getCartByUserId(userId);
 
             if (!cart) {
-                // Crear un carrito si el usuario no tiene uno asignado
+
                 cart = await CartDAO.createCart(userId);
             }
 
-            // Buscar si el producto ya está en el carrito
+
             const productIndex = cart.products.findIndex(item => item.product.toString() === productId);
 
             if (productIndex === -1) {
-                // Si el producto no está en el carrito, lo agregamos
+
                 cart.products.push({ product: productId, quantity: 1 });
             } else {
-                // Si ya existe, actualizamos la cantidad
+
                 cart.products[productIndex].quantity += 1;
             }
 
-            await cart.save();  // Guardar los cambios en la base de datos
+            await cart.save();
             res.status(200).send({ status: 'success', payload: cart });
         } catch (error) {
             console.error('Error al agregar producto al carrito:', error);
@@ -98,61 +99,34 @@ export default class CartController {
 
     static createCart = async (req, res) => {
 
-
         try {
-            // Extraemos el email del cuerpo de la solicitud, ya que será la clave para asociar el carrito al usuario
-            const { email } = req.body;
 
-            // Validamos que el email esté presente
+            const { email } = req.body;
+            console.log(email)
+
             if (!email) {
                 return res.status(400).send({ status: "error", message: "El email es requerido para crear un carrito" });
             }
 
-            // Creamos el carrito vacío, asociado al usuario por el email
+
             const newCart = {
-                email: email,  // Asumimos que el email es único y suficiente para identificar al usuario
-                products: [],  // Inicialmente vacío
+                email: email,
+                products: [],
                 timestamp: new Date()
             };
 
-            // Utilizamos el DAO para guardar el nuevo carrito en la base de datos
+
             const result = await cartDAO.createCart(newCart);
 
-            // Si la creación es exitosa, devolvemos una respuesta con el nuevo carrito
+
             res.status(201).send({ status: "success", payload: result });
         } catch (error) {
             console.error('Error creando el carrito:', error);
-            // En caso de error, devolvemos un estado 500 con el mensaje de error
+
             res.status(500).send({ status: "error", message: error.message });
         }
 
-        /* try {
 
-            console.log('Req.Body: ', req.body);
-            const { first_name, last_name, email, products } = req.body;
-            //const { products } = req.body;
-            console.log(email);
-            //const newCart = await cartDAO.createCart({ products });
-
-
-            let result = await cartDAO.createCart({
-                first_name: first_name,
-                last_name: last_name,
-                email: email,
-                products: [
-
-                ]
-                ,
-                timestamp: new Date()
-            });
-
-            res.status(201).send({ status: "success", payload: result });
-
-        } catch (error) {
-            res.status(500).send({ result: "Error", payload: error.message });
-
-        }
- */
     }
 
     static async getUserCartId(req, res) {
@@ -163,20 +137,24 @@ export default class CartController {
 
     static updateProductInCart = async (req, res) => {
         try {
-            const { cid, pid } = req.params; // ID del carrito y del producto
-            let { quantity } = req.body; // Cantidad de producto a actualizar
+            const { cid, pid } = req.params;
+            let { quantity } = req.body;
+            console.log('Cantidad', quantity)
+            console.log('Producto', pid)
+            console.log('Carrito', cid)
 
-            // Verificar que quantity sea un número válido
+
+
             if (!quantity || isNaN(quantity)) {
                 return res.status(400).send({ status: "error", message: "Cantidad inválida" });
             }
 
-            // Asegúrate de que quantity sea positivo
+
             if (quantity <= 0) {
                 return res.status(400).send({ status: "error", message: "La cantidad debe ser mayor que 0" });
             }
 
-            // Llama a la función del DAO para actualizar el carrito
+
             const updatedCart = await cartDAO.addProductToCart(cid, pid, quantity = 1);
 
             res.status(200).send({ status: "success", payload: updatedCart });
@@ -189,30 +167,17 @@ export default class CartController {
 
     static purchaseCart = async (req, res) => {
 
-        /*  try {
-             const { cartId, productId, quantity } = req.body;
-             const updatedCart = await cartDAO.updateCartProduct(cartId, productId, quantity);
-             res.status(200).json(updatedCart);
-         } catch (error) {
-             console.error('Error al procesar la compra:', error);
-             res.status(400).json({ error: error.message });
-         }
-     }; */
-
-
-
         try {
-            const { cid, pid, quantity } = req.params;
-            //const { cid } = req.params; // ID del carrito
-
-            const cart = await cartDAO.getCartById(cid); // Obtén el carrito
+            const { cid } = req.params;
+            const cart = await cartDAO.getCartById(cid);
 
             if (!cart) {
-                return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
+                return res.status(404).send({ status: 'error', message: 'Carrito no encontrado' });
             }
 
             const productsNotPurchased = [];
             const productsPurchased = [];
+
 
             for (const item of cart.products) {
                 const product = await productDAO.getProductById(item.product);
@@ -221,12 +186,14 @@ export default class CartController {
                     productsNotPurchased.push({ ...item, reason: 'Producto no encontrado' });
                     continue;
                 }
-
+                console.log('Estock por productos', product.stock)
                 if (product.stock >= item.quantity) {
+
                     product.stock -= item.quantity;
                     await productDAO.updateProductStock(product._id, product.stock);
                     productsPurchased.push(item);
                 } else {
+
                     productsNotPurchased.push({
                         ...item,
                         reason: `Stock insuficiente. Stock disponible: ${product.stock}`,
@@ -234,80 +201,28 @@ export default class CartController {
                 }
             }
 
+            const remainingProducts = cart.products.filter(
+                item => !productsPurchased.some(purchased => purchased.product.equals(item.product))
+            );
+            console.log("REMAINING", remainingProducts)
+            console.log("PRODUCTS PURCHASED", productsPurchased)
 
-            // Actualizar el carrito solo con productos no comprados (para reflejar el estado actualizado del carrito)
-            await cartDAO.updateCartProduct(cid, pid, quantity, productsNotPurchased);
+            await cartDAO.updateCart(cid, remainingProducts);
 
-            res.status(200).json({
+            //await cartDAO.deleteCart(cid);
+            // Responder con el resumen de la compra
+            res.status(200).send({
                 status: 'success',
-                message: 'Compra procesada exitosamente',
+                message: 'Compra finalizada',
                 purchased: productsPurchased,
-                notPurchased: productsNotPurchased,
+                notPurchased: productsNotPurchased
             });
         } catch (error) {
-            console.error("Error al procesar la compra:", error);
-            res.status(500).json({ status: 'error', message: error.message });
+            console.error('Error al procesar la compra (purchaseCart):', error);
+            res.status(500).send({ status: 'error', message: error.message });
         }
 
 
+    }
 
-
-        /*  static purchaseCart = async (req, res) => {
-             try {
-                 const { cid } = req.params; // ID del carrito
-                 const cart = await cartDAO.getCartById(cid); // Obtener carrito por ID
-     
-                 if (!cart) {
-                     return res.status(404).send({ status: 'error', message: 'Carrito no encontrado' });
-                 }
-     
-                 const productsNotPurchased = [];
-                 const productsPurchased = [];
-     
-                 // Iterar sobre los productos del carrito
-                 for (const item of cart.products) {
-                     const product = await productDAO.getProductById(item.productId);
-     
-                     if (!product) {
-                         productsNotPurchased.push({ ...item, reason: 'Producto no encontrado' });
-                         continue;
-                     }
-     
-                     if (product.stock >= item.quantity) {
-                         // Si hay suficiente stock, restar la cantidad comprada del stock
-                         product.stock -= item.quantity;
-                         await productDAO.updateProductStock(product._id, product.stock);
-                         productsPurchased.push(item); // Agregar a los productos comprados
-                     } else {
-                         // Si no hay suficiente stock, agregar a la lista de no comprados
-                         productsNotPurchased.push({
-                             ...item,
-                             reason: `Stock insuficiente. Stock disponible: ${product.stock}`,
-                         });
-                     }
-                 }
-     
-                 // Limpiar los productos comprados del carrito
-                 const remainingProducts = cart.products.filter(item =>
-                     !productsPurchased.some(purchased => purchased.productId === item.productId)
-                 );
-     
-                 await cartDAO.updateCartProduct(cid, remainingProducts);
-     
-                 // Responder con el resumen de la compra
-                 res.status(200).json({ message: 'Compra procesada exitosamente' });
-     
-                  res.status(200).send({
-                      status: 'success',
-                      message: 'Compra finalizada',
-                      purchased: productsPurchased,
-                      notPurchased: productsNotPurchased,
-                  }); 
-             } catch (error) {
-                 res.status(500).send({ status: 'error', message: error.message });
-             }
-     
-         //} */
-
-    };
 }

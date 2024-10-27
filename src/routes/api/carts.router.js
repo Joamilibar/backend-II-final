@@ -17,35 +17,7 @@ const router = express.Router();
 
 
 router.post('/add-product', Auth.isAuthenticated, CartController.addProduct);
-/* async (req, res) => {
-const { productId } = req.body;
-const userId = req.user._id; // Asegúrate de que el usuario esté autenticado
 
-try {
-    let cart = await CartDAO.getCartByUserId(userId); // Obtener el carrito del usuario (o crear uno si no existe)
-
-    if (!cart) {
-        cart = await CartDAO.createCart(userId); // Si no existe, creamos uno
-    }
-
-    const productIndex = cart.products.findIndex(item => item.product.toString() === productId);
-
-    if (productIndex === -1) {
-        // Si el producto no está en el carrito, lo agregamos
-        cart.products.push({ product: productId, quantity: 1 });
-    } else {
-        // Si ya existe, actualizamos la cantidad
-        cart.products[productIndex].quantity += 1;
-    }
-
-    await cart.save(); // Guardar los cambios en la base de datos
-
-    res.status(200).send({ status: 'success', payload: cart });
-} catch (error) {
-    console.error('Error al agregar producto al carrito:', error);
-    res.status(500).send({ status: 'error', message: 'Error al agregar producto al carrito' });
-}
-}); */
 
 router.get("/carts", Auth.isAuthenticated, CartController.getCarts);
 
@@ -60,29 +32,6 @@ router.put("/carts/:cid", Auth.isAuthenticated, CartController.updateProductInCa
 router.post("/carts/:cid/purchase", Auth.isAuthenticated, CartController.purchaseCart);
 
 //router.post('/purchase/:cartId/:productId/:quantity', CartController.purchaseCart);
-
-/* router.put("/carts/:cid", async (req, res) => {
-    const { cid } = req.params;
-    const { products } = req.body;
-
-    try {
-        const cart = await CartModel.findOne({ _id: cid });
-
-        cart.products = products.map(product => ({
-            product: product.product,
-            quantity: product.quantity || 1 // Si no se proporciona la cantidad, se asume 1
-        }));
-
-        // Guardar los cambios en la base de datos
-        let result = await cart.save();
-
-        res.send({ status: "success", payload: result });
-
-
-    } catch (error) {
-        res.send({ status: "error", payload: "El carrito no existe" });
-    }
-}); */
 
 
 // PUT /api/carts/:cid/products/:pid - Actualizar producto(s) en carrito por id
