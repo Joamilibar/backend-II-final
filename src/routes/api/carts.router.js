@@ -11,6 +11,7 @@ import User from '../../dao/models/user.model.js';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import Utils from '../../common/utils.js';
+import MailController from '../../controllers/mail.controller.js';
 
 
 const router = express.Router();
@@ -37,7 +38,6 @@ router.post("/carts/:cid/purchase", Auth.isAuthenticated, CartController.purchas
 // PUT /api/carts/:cid/products/:pid - Actualizar producto(s) en carrito por id
 
 router.put('/carts/:cid/products/:pid', Auth.isAuthenticated, CartController.updateProductInCart);
-
 
 
 // Crear carrito en Mongo
@@ -71,7 +71,6 @@ router.delete("/carts/:cid/products/:pid", async (req, res) => {
     }
 }
 );
-
 
 // DELETE /api/carts/:cid - Eliminar todos los productos del carrito (id)
 

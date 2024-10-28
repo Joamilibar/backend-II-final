@@ -5,7 +5,7 @@ async function addProductToCart(cartId, productId, quantity) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ quantity: 1 }) // Se envía la cantidad por defecto (1)
+            body: JSON.stringify({ quantity: 1 })
         });
 
         const result = await response.json();
@@ -13,6 +13,8 @@ async function addProductToCart(cartId, productId, quantity) {
 
         if (result.status === 'success') {
             alert('Producto agregado al carrito');
+            window.location.href = `/carts/${cartId}`;
+
         } else {
             alert('Error al agregar el producto al carrito');
         }
@@ -47,8 +49,8 @@ async function createCart(userId) {
 document.addEventListener('DOMContentLoaded', async () => {
     let cartId;
     try {
-        // Hacemos la solicitud para obtener los datos del usuario actual
-        const userResponse = await fetch('/api/sessions/current');  // Cambia la ruta aquí
+
+        const userResponse = await fetch('/api/sessions/current');
         console.log('userResponse:', userResponse);
         if (!userResponse.ok) {
             throw new Error('No se pudo obtener la información del usuario.');
@@ -57,29 +59,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const userData = await userResponse.json();
         console.log('userData:', userData);
 
-        // Verificamos si el cartId está presente en la respuesta
-        cartId = userData.cartId;  // Accede al cartId directamente
+
+        cartId = userData.cartId;
         console.log('cartId:', cartId);
 
-        /* if (!cartId) {
-            console.log('El usuario no tiene un carrito asignado.');
-            await CartController.createCart(userData._id);
-            alert('No tienes un carrito disponible. Lo acabamos de crear.');
-            return; // Salimos si no hay cartId
-        } */
     } catch (error) {
         console.error('Error al obtener el cartId del usuario:', error);
         return;
     }
 
-    // Seleccionamos los botones para agregar productos al carrito
     const cartButtons = document.querySelectorAll('.add-to-cart');
 
     cartButtons.forEach(button => {
         button.addEventListener('click', async (event) => {
             const productId = event.target.getAttribute('data-id');
             if (cartId) {
-                await addProductToCart(cartId, productId); // Llamamos a la función para agregar el producto
+                await addProductToCart(cartId, productId);
             } else {
                 alert('No se puede agregar el producto. El carrito no está disponible.');
             }

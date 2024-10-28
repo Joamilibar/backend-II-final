@@ -98,6 +98,7 @@ export default class SessionsController {
         try {
             let decoded = Auth.verifyToken(token);
             const userData = {
+                id: decoded.email._id,
                 first_name: decoded.email.first_name,
                 last_name: decoded.email.last_name,
                 email: decoded.email.email,

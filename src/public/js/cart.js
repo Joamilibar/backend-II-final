@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             console.log('Resultado de la compra:', data);
             if (data.status === 'success') {
-
+                alert('Compra finalizada con éxito. Tu ticket ha sido generado.');
+                window.location.href = `/carts/${cartId}`;
                 purchaseMessage.innerHTML = `<p style="color: green;">Compra finalizada con éxito. Tu ticket ha sido generado.</p>`;
             } else {
                 const notPurchasedProducts = data.notPurchased;

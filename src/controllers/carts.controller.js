@@ -12,6 +12,7 @@ import passport from 'passport';
 import Auth from '../middleware/auth.js';
 import SessionsController from '../controllers/sessions.controller.js';
 import Utils from '../common/utils.js';
+import ticketsService from "../services/tickets.service.js";
 
 const productDAO = new ProductDAO();
 const cartDAO = new CartDAO();
@@ -93,14 +94,11 @@ export default class CartController {
         } catch (error) {
             res.send({ status: "error", payload: "El carrito no existe" });
         }
-
     }
-
 
     static createCart = async (req, res) => {
 
         try {
-
             const { email } = req.body;
             console.log(email)
 
@@ -108,16 +106,12 @@ export default class CartController {
                 return res.status(400).send({ status: "error", message: "El email es requerido para crear un carrito" });
             }
 
-
             const newCart = {
                 email: email,
                 products: [],
                 timestamp: new Date()
             };
-
-
             const result = await cartDAO.createCart(newCart);
-
 
             res.status(201).send({ status: "success", payload: result });
         } catch (error) {
@@ -125,8 +119,6 @@ export default class CartController {
 
             res.status(500).send({ status: "error", message: error.message });
         }
-
-
     }
 
     static async getUserCartId(req, res) {
@@ -171,6 +163,7 @@ export default class CartController {
             const { cid } = req.params;
             const cart = await cartDAO.getCartById(cid);
 
+
             if (!cart) {
                 return res.status(404).send({ status: 'error', message: 'Carrito no encontrado' });
             }
@@ -208,9 +201,10 @@ export default class CartController {
             console.log("PRODUCTS PURCHASED", productsPurchased)
 
             await cartDAO.updateCart(cid, remainingProducts);
-
+            await ticketsService.sendTicketByEmail({ cart, productsPurchased });
             //await cartDAO.deleteCart(cid);
             // Responder con el resumen de la compra
+
             res.status(200).send({
                 status: 'success',
                 message: 'Compra finalizada',

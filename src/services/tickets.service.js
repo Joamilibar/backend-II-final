@@ -1,59 +1,66 @@
-import TicketModel from '../models/ticket.model.js';
-import CartModel from '../models/cart.model.js';
-import ProductModel from '../models/product.model.js';
+import TicketModel from '../dao/models/ticket.model.js';
+import CartModel from '../dao/models/cart.model.js';
+import ProductModel from '../dao//models/product.model.js';
+import CartDAO from '../dao/cart.dao.js';
+import ProductDAO from '../dao/product.dao.js';
+import nodemailer from 'nodemailer';
+import dotenv from "dotenv";
+
+dotenv.config();
+
+
+const cartDAO = new CartDAO();
+const productDAO = new ProductDAO();
 
 class TicketService {
-    async createTicket(cartId, userId) {
+    async sendTicketByEmail(cart, productsPurchased) {
         try {
-            const cart = await CartModel.findById(cartId).populate('products.product');
-            if (!cart) {
-                throw new Error(`Carrito con ID ${cartId} no encontrado`);
+
+            const email = cart.cart.email;
+
+            if (!email) {
+                console.error("Error: El email del carrito no está definido");
+                throw new Error("El email del carrito no está definido");
             }
-
-            const purchasedProducts = [];
-            const failedProducts = [];
-
-            for (const item of cart.products) {
-                const product = item.product;
-                const quantityRequested = item.quantity;
-
-                // Verifica disponibilidad del producto
-                if (product.stock >= quantityRequested) {
-                    // Si hay stock suficiente, actualiza el stock del producto
-                    product.stock -= quantityRequested;
-                    await product.save(); // Guarda los cambios en el stock
-                    purchasedProducts.push({
-                        productId: product._id,
-                        quantity: quantityRequested
-                    });
-                } else {
-                    // Si no hay stock suficiente, agrega el producto a la lista de fallidos
-                    failedProducts.push(product._id);
+            const transport = nodemailer.createTransport({
+                service: 'gmail',
+                port: 587,
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
                 }
-            }
 
-            // Generar el ticket si hay productos comprados
-            if (purchasedProducts.length > 0) {
-                const ticket = await TicketModel.create({
-                    userId,
-                    products: purchasedProducts,
-                    createdAt: new Date()
-                });
+            });
 
-                // Actualizar el carrito para eliminar los productos comprados
-                cart.products = cart.products.filter(item => !purchasedProducts.some(p => p.productId.equals(item.product)));
-                await cart.save(); // Guarda el carrito actualizado
 
-                return { ticket, failedProducts };
-            } else {
-                // Si no se compró ningún producto, devuelve el arreglo de productos fallidos
-                return { ticket: null, failedProducts };
-            }
+            let result = await transport.sendMail({
+                from: 'joamilibarra@gmail.com',
+                to: email,
+                subject: 'Resumen de Compra',
+                text: 'Gracias por su compra',
+                html: `
+                <h1>Su compra ha sido exitosa</h1>
+                    <h2>Resumen de su compra</h2>
+                    <p>Productos: 
+                        <div>
+                            <p>Aqui el detalle de su compra:
+                        </div>
+                    
+        }</p >
+
+            `
+            })
+            return result;
+
+
         } catch (error) {
-            console.error("Error al procesar la compra:", error);
-            throw new Error("Error al procesar la compra");
+            console.error("Error al intentar enviar ticket por memail:", error);
+            throw new Error("Error al intentar enviar ticket por memail");
         }
     }
 }
 
 export default new TicketService();
+
+
+
