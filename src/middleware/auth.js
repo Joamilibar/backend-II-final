@@ -57,7 +57,7 @@ export default class Auth {
     };
 
     static isAdmin = (req, res, next) => {
-        const user = req.user || req.session.user; // Dependiendo de cómo manejes la autenticación
+        const user = req.user || req.session.user;
         if (user && user.role === 'admin') {
             return next();
         }
@@ -65,14 +65,13 @@ export default class Auth {
     }
 
     static isUser = (req, res, next) => {
-        const user = req.user || req.session.user; // Dependiendo de cómo manejes la autenticación
+        const user = req.user || req.session.user;
         if (user && user.role === 'user') {
             return next();
         }
-        alert('Acceso denegado. Sólo los usuarios pueden agregar productos al carrito.');
-        //return res.status(403).send({ status: 'error', message: 'Acceso denegado. Sólo los usuarios pueden agregar productos al carrito.' });
-    }
+        return res.status(403).send({ status: 'error', message: 'Acceso denegado. Sólo los usuarios pueden realizar esta acción.' });
 
+    }
 
     static accessRole = (roles) => {
         return (req, res, next) => {
@@ -83,20 +82,6 @@ export default class Auth {
             }
             return res.status(403).send({ status: "error", message: "Acceso denegado" }).next();
 
-
-
-            /* const token = req.cookies.token;
-
-            if (!token) {
-                return res.status(401).send({ error: 'No authenticated' });
-            }
-
-            const decoded = Auth.verifyToken(token);
-            if (!decoded || !roles.includes(decoded.user.role)) {
-                return res.status(403).send({ error: 'Unauthorized access' });
-            }
-
-            next(); */ // Si el rol es válido, continúa
         };
 
     }

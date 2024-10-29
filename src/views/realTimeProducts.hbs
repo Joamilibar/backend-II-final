@@ -8,7 +8,8 @@
   <input type="text" id="code" placeholder="Código" required />
   <input type="number" id="stock" placeholder="Stock" required />
   <input type="text" id="category" placeholder="Categoría" required />
-  <button type="submit">Agregar Producto</button>
+  <button type="submit">Crear Producto</button>
+  <button onclick="window.location.href='/products'">Agregar Productos</button>
 </form>
 
 <ul id="product-list">
@@ -25,6 +26,7 @@
       Categoría:
       {{category}}
       <button class="delete-button" data-id="${id}">Eliminar</button>
+      <a href="/product/${id}">Editar</a>
     </li>
   {{/each}}
 </ul>

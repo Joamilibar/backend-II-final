@@ -1,4 +1,5 @@
 async function addProductToCart(cartId, productId, quantity) {
+
     try {
         const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
             method: 'PUT',
@@ -16,11 +17,12 @@ async function addProductToCart(cartId, productId, quantity) {
             window.location.href = `/carts/${cartId}`;
 
         } else {
-            alert('Error al agregar el producto al carrito');
+
+            alert('Error al agregar el producto al carrito. Acceso denegado', result.payload);
         }
     } catch (error) {
-        console.error('Error al agregar el producto:', error);
-        alert('Error al agregar el producto al carrito');
+        alert('Error al agregar el producto al carrito, Acceso denegado');
+
     }
 }
 

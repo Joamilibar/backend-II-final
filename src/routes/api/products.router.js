@@ -16,6 +16,8 @@ const router = Router();
 
 const productDAO = new ProductDAO();
 
+router.get('/admin', ProductController.getProducts);
+
 // Rutas para productos
 router.get('/products', ProductController.getProducts);
 

@@ -20,9 +20,14 @@ router.get('/current', Auth.isAuthenticated, ViewsController.profileView);
 
 router.get('/currentView', Auth.isAuthenticated, ViewsController.currentView);
 
-router.get('/products', Auth.isAuthenticated, Auth.isUser, ViewsController.productView);
+router.get('/products', Auth.isAuthenticated, ViewsController.productView);
 
 router.get("/products/:pid", Auth.isAuthenticated, ViewsController.getProductById);
+
+router.get('/realTimeProducts', Auth.isAuthenticated, Auth.isAdmin, ViewsController.adminView);
+// Ruta Websocket realTimeProducts
+
+
 
 // GET /carts/cid - Mostrar carrito en vista Handlebars
 router.get("/carts/:cid", ViewsController.getCartById); //** */
@@ -30,6 +35,8 @@ router.get("/carts/:cid", ViewsController.getCartById); //** */
 // PUT /carts/:cid/products/:pid - Actualizar producto(s) en carrito por id
 
 router.put('/carts/:cid/products/:pid', ViewsController.cartProductUpdateView); //** */
+
+
 
 export default router;
 

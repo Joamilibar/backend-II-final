@@ -17,7 +17,7 @@ import MailController from '../../controllers/mail.controller.js';
 const router = express.Router();
 
 
-router.post('/add-product', Auth.isAuthenticated, CartController.addProduct);
+router.post('/add-product', Auth.isAuthenticated, Auth.isUser, CartController.addProduct);
 
 
 router.get("/carts", Auth.isAuthenticated, CartController.getCarts);
@@ -30,14 +30,14 @@ router.get("/carts/:cid", Auth.isAuthenticated, CartController.getCartById);
 
 router.put("/carts/:cid", Auth.isAuthenticated, CartController.updateProductInCart);
 
-router.post("/carts/:cid/purchase", Auth.isAuthenticated, CartController.purchaseCart);
+router.post("/carts/:cid/purchase", Auth.isAuthenticated, Auth.isUser, CartController.purchaseCart);
 
 //router.post('/purchase/:cartId/:productId/:quantity', CartController.purchaseCart);
 
 
 // PUT /api/carts/:cid/products/:pid - Actualizar producto(s) en carrito por id
 
-router.put('/carts/:cid/products/:pid', Auth.isAuthenticated, CartController.updateProductInCart);
+router.put('/carts/:cid/products/:pid', Auth.isAuthenticated, Auth.isUser, CartController.updateProductInCart);
 
 
 // Crear carrito en Mongo

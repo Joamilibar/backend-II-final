@@ -44,7 +44,7 @@ export default class ViewsController {
             console.log('Usuario Registrado: ', user);
 
             if (user.role === 'admin') {
-                res.redirect('/index')
+                res.redirect('/products')
             }
             if (user.role === 'user') {
                 res.redirect('/products')
@@ -64,6 +64,16 @@ export default class ViewsController {
             res.status(500).send('Error al obtener los productos');
         }
     };
+
+    static adminView = async (req, res) => {
+        try {
+            const products = await viewDAO.getProducts();
+            console.log('PRODUCTOS PRUCT VIEW', products)
+            res.render('realTimeProducts', { title: 'Lista de Productos', products });
+        } catch (error) {
+            res.status(500).send('Error al obtener los productos (adminView Controller)');
+        }
+    }
 
     static getProductById = async (req, res) => {
         try {
@@ -145,71 +155,7 @@ export default class ViewsController {
 
 }
 
-/* export const loginView = async (req, res) => {
-    res.render('login');
 
-};
-
-export const registerView = async (req, res) => {
-    const roles = [
-        { value: 'user', label: 'Usuario' },
-        { value: 'admin', label: 'Administrador' }
-    ];
-    return res.render('register', { roles });
-}
-
-
-export const profileView = async (req, res) => {
-    res.render('profile', { user: req.session.user });
-}
-
-
-export const updateView = async (req, res) => {
-    res.render('update');
-
-}
-
-
-export const currentView = async (req, res) => {
-    const user = req.session.user;
-    console.log('Usuario Registrado: ', user);
-
-    if (user.role === 'admin') {
-        return res.render('admin', { user });
-    }
-    if (user.role === 'user') {
-        return res.render('current', { user });
-
-    }
-}
-
-export const productView = async (req, res) => {
-    try {
-
-        const products = await viewDAO.getProducts();
-        // Renderizar la vista
-        res.render('index', { title: 'Lista de Productos', products });
-    } catch (error) {
-        res.status(500).send('Error al obtener los productos');
-    }
-};
-
-
-export const getCartById = async (req, res) => {
-    const { cid } = req.params;
-    try {
-        console.log(cid);
-        let cart = await cartDAO.getCartById(cid).populate("products.product");
-        console.log(cart);
-        if (!cart) {
-            return res.status(404).json({ message: 'Carrito no existe' });
-        }
-        res.render('cart', { title: 'Carrito de Compra', cart: cart });
-        //return res.send({ status: "success", payload: cart });
-    } catch (error) {
-        res.send({ status: "error", payload: "El carrito no existe" });
-    }
-} */
 
 
 

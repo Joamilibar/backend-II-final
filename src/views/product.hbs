@@ -5,6 +5,9 @@
   <p>Precio: {{product.price}}</p>
   <p>Categoría: {{product.category}}</p>
   <button onclick="addToCart('{{product._id}}')')">Agregar al carrito</button>
+  <br /><button onclick="window.location.href='/realTimeProducts'">Modificar
+    Productos</button>
+  <a href="/realTimeProducts">Modificar Productos</a>
   <script>
     async function addToCart(productId) { try { const response = await
     fetch(`/api/carts/add-product`, { method: 'POST', headers: { 'Content-Type':
