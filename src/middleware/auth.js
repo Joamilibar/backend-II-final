@@ -48,7 +48,7 @@ export default class Auth {
     static verifyToken = (token, next) => {
         try {
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
-            console.log(decoded);
+            console.log('Decoded User', decoded);
             return decoded;
         } catch (error) {
             console.error("Error al verificar el token:", error);

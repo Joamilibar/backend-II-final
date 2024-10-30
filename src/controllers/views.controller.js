@@ -58,7 +58,6 @@ export default class ViewsController {
     static productView = async (req, res) => {
         try {
             const products = await viewDAO.getProducts();
-            console.log('PRODUCTOS PRUCT VIEW', products)
             res.render('index', { title: 'Lista de Productos', products });
         } catch (error) {
             res.status(500).send('Error al obtener los productos');
@@ -68,7 +67,6 @@ export default class ViewsController {
     static adminView = async (req, res) => {
         try {
             const products = await viewDAO.getProducts();
-            console.log('PRODUCTOS PRUCT VIEW', products)
             res.render('realTimeProducts', { title: 'Lista de Productos', products });
         } catch (error) {
             res.status(500).send('Error al obtener los productos (adminView Controller)');

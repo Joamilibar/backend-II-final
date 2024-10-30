@@ -16,9 +16,9 @@ export default class CartDAO {
         }
     }
 
-    getCartById = async (id) => {
+    getCartById = async (cid) => {
         try {
-            let cart = await CartModel.findById(id)//.populate("products.product");
+            let cart = await CartModel.findById({ _id: cid }).populate("products.product");
             return cart
         } catch (error) {
             console.error("Error en getCartById:", error);

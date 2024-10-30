@@ -3,7 +3,7 @@ import mongoosePaginate from "mongoose-paginate-v2";
 
 
 
-const cartCollection = "carts";
+const cartCollection = "Carts";
 
 const cartSchema = new mongoose.Schema({
     first_name: { type: String, required: true },

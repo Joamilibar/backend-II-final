@@ -59,7 +59,6 @@ export default class ViewtDAO {
     getProducts = async (filter, options) => {
         try {
             let products = await ProductModel.find(filter, options);
-            console.log("VIEW DAO PRODUCTS", products)
             return products
         } catch (error) {
             console.log(error)

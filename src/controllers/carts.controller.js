@@ -160,20 +160,26 @@ export default class CartController {
     static purchaseCart = async (req, res) => {
 
         try {
-            const { cid } = req.params;
+            let token = req.cookies.token;
+            const decodedUser = Auth.verifyToken(token);
+            const { cartId, _id } = decodedUser.email;
+            const cid = cartId;
+            const userId = _id;
+
             const cart = await cartDAO.getCartById(cid);
+            const email = cart.email;
 
 
             if (!cart) {
                 return res.status(404).send({ status: 'error', message: 'Carrito no encontrado' });
             }
-
+            console.log('CARRITO', cart)
             const productsNotPurchased = [];
             const productsPurchased = [];
-
+            let totalAmount = 0;
 
             for (const item of cart.products) {
-                const product = await productDAO.getProductById(item.product);
+                const product = await productDAO.getProductById(item.product);;
 
                 if (!product) {
                     productsNotPurchased.push({ ...item, reason: 'Producto no encontrado' });
@@ -181,7 +187,9 @@ export default class CartController {
                 }
                 console.log('Estock por productos', product.stock)
                 if (product.stock >= item.quantity) {
-
+                    console.log(item.quantity)
+                    console.log(item.product.price)
+                    totalAmount += (item.quantity * item.product.price);
                     product.stock -= item.quantity;
                     await productDAO.updateProductStock(product._id, product.stock);
                     productsPurchased.push(item);
@@ -193,15 +201,16 @@ export default class CartController {
                     });
                 }
             }
-
+            console.log('Total Total', totalAmount)
             const remainingProducts = cart.products.filter(
                 item => !productsPurchased.some(purchased => purchased.product.equals(item.product))
             );
             console.log("REMAINING", remainingProducts)
             console.log("PRODUCTS PURCHASED", productsPurchased)
+            console.log('TOTAL AMOUNT', totalAmount)
 
             await cartDAO.updateCart(cid, remainingProducts);
-            await ticketsService.sendTicketByEmail({ cart, productsPurchased });
+            const ticket = ticketsService.createAndSendTicket(productsPurchased, userId, cart, email, totalAmount);
             //await cartDAO.deleteCart(cid);
             // Responder con el resumen de la compra
 
